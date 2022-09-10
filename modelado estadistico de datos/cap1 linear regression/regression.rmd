@@ -1,0 +1,227 @@
+---
+title: "Work"
+author: "jmfti"
+date: "2022-09-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Cap1 - Linear regression
+Methods to fit a linear function over some parameters (w) against a test data 
+$$y = \sum_{i=1}^n{w_{i} x_{i}} + w_0$$
+Given vector $t$ of observations, we need to find a function $y(x, w) = w_0 + w_1 x_1 + ... + w_n x_n$
+$$
+\begin{align} y(\textbf{x},\textbf{w}) = \sum _{j=0} ^{M} \left ( w_j\phi_j(\textbf{x}) \right ) = 
+\textbf{w}^T \Phi
+\end{align}
+$$
+So that $\textbf{w} = (w_0, ..., w_M-1)^T$ y $\Phi = (\phi_0, ..., \phi_D)^T$.
+$\Phi(\textbf{x})$ is a matrix, with as many columns as base functions has  $\phi(x_i)$ 
+
+Assuming \textbf{t} = y(\textbf{x,w}) + \epsilon so that \epsilon \sim N(0, \lambda^{-1}) beeing \lambda the precision, we can write
+$$
+\begin{align}
+p(\textbf{t} \mid \textbf{x}, \textbf{w}, \Lambda) = N(\textbf{t} \mid y(\textbf{x},\textbf{w}), \lambda^{-1}) 
+\end{align}
+$$
+the probability of objective value $t$ given inputs $\textbf{x}$ and a coefficients vector $\textbf{w}$ is the probability of having this observation distributed in a Normal $y(\textbf{x},\textbf{w})$ with inverse precision $\lambda$
+
+Assuming a cuadratic error function, the optimal prediction for a new value of x will come determined by the conditional mean 
+$$
+\begin{align} 
+E[t\mid \textbf{x}] = \int{ t p(t\mid \textbf{x}) dt = y(\textbf{x},\textbf{w}) } 
+\end{align}
+$$
+So assuming a target vector $\textbf{t} = (t_1, ..., t_n)$ and a set of variables $\textbf{X}=\{x_1, x_2,...,x_n\}$, Assuming independence of all events, the likelihood function is (according to Bishop) the product of all the observations 
+$$
+\begin{align} p(\textbf{t} \mid \textbf{X}, \textbf{w}, \lambda) = p(t_1 \mid \textbf{x}_1, \textbf{w}, \lambda) p(t_2 \mid \textbf{x}_2, \textbf{w}, \lambda) ... p(t_n \mid \textbf{x}_n, w, \lambda) 
+\end{align}
+$$
+$$
+\begin{align} p(\textbf{t} \mid \textbf{X}, \textbf{w}, \lambda ) = \prod _{n=1} ^N N(t_n \mid \textbf{w}^T\phi(\textbf{x}_n), \lambda^{-1} ) 
+\end{align}
+$$
+Taking the log likelihood product turns into a sum
+$$ 
+\begin{align}
+\ln p(\textbf{t} \mid \textbf{X}, \textbf{w}, \lambda) &= \sum _{n=1} ^N \ln N(t_n \mid w^T, \phi(x_n), \lambda^{-1}) \\ 
+&= \dfrac{N}{2} \ln \lambda - \dfrac{N}{2} \ln (2\pi) - \lambda \left ( \dfrac{1}{2} \sum _{n=1} ^N \left [ t_n - w^T \phi(x_n) \right ]^2 \right )  
+\end{align}
+$$
+Now to find the best matching values for \textbf{w} that makes more likely the vector t we find the gradient of the function and set to 0.
+We derive the function in respect to probability, so when we set to 0, we are trying find a w vector that maximizes the probability
+$$
+\begin{align}
+\nabla \ln p(\textbf{t} \mid \textbf{X}, \textbf{w}, \lambda) = \sum _{n=1} ^N \left ( t_n - \textbf{w}^T \phi(x_n) \right )\phi(x_n)^T 
+\end{align}
+$$
+
+maximize setting the gradient
+$$
+\begin{align}
+0= \sum _{n=1} ^N t_n \phi(x_n)^T - \sum _{n=1} ^N \textbf{w}^T\phi(x_n)\phi(x_n)^T
+\end{align}
+$$
+$w^T$ is just a constant so
+$$
+\begin{align}
+0= \sum _{n=1} ^N t_n \phi(x_n)^T - \textbf{w}^T\sum _{n=1} ^N \phi(x_n)\phi(x_n)^T
+\end{align}
+$$
+If $\sum _{n=1} ^N \phi(x_n)\phi(x_n)^T = \Phi^T\Phi$ beeing $\Phi$ the design matrix $\Phi_{nj} = \phi_j(x_n)$ and  
+$
+\sum_{n=1}^N t_n \phi(x_n)^T = \textbf{t}^T \Phi
+$
+then
+$$
+\begin{align} 
+0 &= \textbf{t}^T  \Phi - \textbf{w}^T  \Phi^T  \Phi \\
+\textbf{w}^T &= \textbf{t}^T  \Phi ( \Phi^T  \Phi)^{-1} 
+\end{align}
+$$
+
+so 
+
+$$
+\begin{align}
+\textbf{w} &= ( \Phi^T  \Phi)^{-1}  \Phi^T \textbf{t}
+\end{align}
+$$
+That gives us the parameters for the model
+
+Para la precisión también podemos hacer el mismo procedimiento derivando respecto a $\lambda$, quedándonos
+$$
+\begin{align}
+\dfrac{1}{\lambda} = \dfrac{1}{N} \sum _{i=1} ^N \left ( t_i - w^T \phi(x_i) \right )^2
+\end{align}
+$$
+## Estimación de coeficientes por máxima verosimilitud
+Asumiendo que $t = y(x,w) + \epsilon$ tal 
+
+```{r}
+library(MASS)
+library(ISLR2)
+head(Boston)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+# Simple Linear regression
+
+```{r}
+lm.fit <- lm(medv ~ lstat, data=Boston)
+lm.fit
+summary(lm.fit)
+
+names(lm.fit)
+
+lm.fit$coefficients
+head(lm.fit$residuals)
+head(lm.fit$effects)
+# get an estimated interval of each coefficient
+confint(lm.fit)
+```
+
+Se pueden obtener predicciones intervalos de confianza y intervalos de predicción
+
+## Intervalo de confianza para la media de y
+```{r}
+predict(lm.fit, data.frame(lstat=(c(5,10,15))), interval="confidence")
+```
+
+## Intervalo de predicción para y
+```{r}
+predict(lm.fit, data.frame(lstat=(c(5,10,15))), interval="prediction")
+```
+
+```{r}
+plot(Boston$lstat, Boston$medv)
+abline(lm.fit)
+abline(lm.fit, lwd=3, col="red")
+```
+
+## Diagnostic plots
+```{r}
+par(mfrow=c(2,2))
+plot(lm.fit)
+```
+
+```{r}
+plot(predict(lm.fit), residuals(lm.fit))
+```
+
+### Studentized residuals
+```{r}
+plot(predict(lm.fit), rstudent(lm.fit))
+```
+
+```{r}
+plot(hatvalues(lm.fit))
+which.max(hatvalues(lm.fit))
+```
+
+Let's say we have 2 populations of n = 100 elements. A population has a parameter that has a distribution over the population of N(90,2).
+If we apply X1 quantity of treatment A, effect?
+If we apply x2 quantity of treatment A, effect?
+
+
+```{r}
+gen_pop = rnorm(100, 90, 2)
+df_gen_pop = data.frame("measure_a" = gen_pop, "applied_units" = rep(0,100))
+# now let's say treatment adds 5 + error for each unit, where error is standard N(0,1)
+treated_1_unit = rnorm(100, 90, 2) + 1 * 5 + rnorm(100, 0, 1)
+df_treat1 = data.frame("measure_a" = treated_1_unit, "applied_units" = rep(1,100))
+
+treated_2_unit = rnorm(100, 90, 2) + 2 * 5 + rnorm(100, 0,1)
+df_treat2 = data.frame("measure_a" = treated_2_unit, "applied_units" = rep(2,100))
+
+final_df = rbind(df_gen_pop, df_treat1)
+final_df = rbind(final_df, df_treat2)
+
+library(ggplot2)
+
+ggplot(final_df) +
+  aes(
+    x = measure_a,
+    fill = applied_units,
+    colour = applied_units,
+    group = applied_units
+  ) +
+  geom_density(adjust = 1L) +
+  scale_fill_distiller(palette = "Accent", direction = 1) +
+  scale_color_distiller(palette = "Accent", direction = 1) +
+  theme_classic()
+
+ggplot(final_df) +
+  aes(
+    x = "",
+    y = measure_a,
+    fill = applied_units,
+    colour = applied_units,
+    group = applied_units
+  ) +
+  geom_violin(adjust = 1L, scale = "area") +
+  scale_fill_distiller(palette = "Accent", direction = 1) +
+  scale_color_distiller(palette = "Accent", direction = 1) +
+  theme_classic()
+
+model = lm(measure_a ~ applied_units, data=final_df)
+summary(model)
+
+# coefficients
+confint(model)
+
+```
+
+# Multiple linear regression
+
