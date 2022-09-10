@@ -222,6 +222,8 @@ summary(model)
 confint(model)
 
 ```
+Confidence interval for the mean, without applying any measure is 90.56 ~ 90.31
+Confidence interval for the mean of slope applied_units: 4.72 ~ 5.31, so this suggests that treatment adds N(5,\beta)
 
 # Multiple linear regression
 
