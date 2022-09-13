@@ -225,5 +225,46 @@ confint(model)
 Confidence interval for the mean, without applying any measure is 90.56 ~ 90.31
 Confidence interval for the mean of slope applied_units: 4.72 ~ 5.31, so this suggests that treatment adds N(5,\beta)
 
-# Multiple linear regression
+## Multiple linear regression
 
+```{r}
+lm.fit <- lm(medv ~ lstat + age, data=Boston)
+
+summary(lm.fit)
+
+lm.fit <- update(lm.fit, ~ . - age)
+
+summary(lm.fit)
+```
+
+### More variables
+
+```{r, echo=FALSE}
+# add all terms and add all combined effects 2 on 2 (medv * age + medv*nox + ...)
+lm.fit <- lm(medv ~ . + .*., data=Boston)
+
+pruned_model <- step(lm.fit, direction="backward")
+summary(pruned_model)
+```
+
+```{r}
+summary(pruned_model)
+```
+
+### Anova test
+
+anova performs a hypothesis test comparing the 2 models. Null hypothesis is that the two models fit the data equally well, the alternative hypothesis is that the full model is superior.
+
+```{r}
+first_model <- lm(medv ~ lstat + age, data=Boston)
+anova(first_model, lm.fit)
+```
+
+A much better model having p close to 0 and F quite low, also the residual sum of squares (RSS) is much more lower in model 2 than in model 1. But it comes at a cost. Those 76 degrees of freedom.
+
+### Cualitative predictors
+
+```{r}
+head(Carseats)
+carseats_model_1 <- lm.fit(Sales ~ . + Income:Advertising + Price:Age, data=Carseats)
+```
