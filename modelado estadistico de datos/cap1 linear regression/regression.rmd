@@ -266,5 +266,92 @@ A much better model having p close to 0 and F quite low, also the residual sum o
 
 ```{r}
 head(Carseats)
-carseats_model_1 <- lm.fit(Sales ~ . + Income:Advertising + Price:Age, data=Carseats)
+carseats_model_1 <- lm(Sales ~ . + Income:Advertising + Price:Age, data=Carseats)
+```
+
+# Classification methods
+
+## Stock Market Data
+
+```{r}
+names(Smarket)
+dim(Smarket)
+summary(Smarket)
+pairs(Smarket)
+plot(Smarket$Volume)
+```
+
+## Logistic regression
+We will fit a logistic regression to predict with Lag1 ... Lag5
+Use glm() with arg family = binomial
+```{r}
+glm.fits <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data=Smarket, family=binomial)
+summary(glm.fits)
+coef(glm.fits)
+```
+Coefficient for Lag 1 is -0.073. This means that 1 unit increase in Lag1 is associated with an increase in the log odds of Direction by -0.073 units.
+```{r}
+# access some aspects of summary
+summary(glm.fits)$coef
+summary(glm.fits)$coef[,4]
+```
+
+Make judgements with data
+
+```{r}
+glm.probs <- predict(glm.fits, type="response")
+glm.probs[1:10]
+contrasts(Smarket$Direction)
+# R will try to create a dummy variable
+glm.pred <- rep("Down", 1250) # create a new variable with Down
+glm.pred[glm.probs > .5] = "Up" # comparing both vectors, when glm.probs[i] > .5, glm.pred[i] = Up
+table(glm.pred, Smarket$Direction) # create a confusion matrix. Diagonal = correct, Off-diagonal = incorrect
+# when predicted Down, 145 were correctly Down, but 141 predicted Down and should be Up
+
+# we can get the precision of our prediction
+mean(glm.pred == Smarket$Direction)
+
+# error rate is 
+1 - mean(glm.pred == Smarket$Direction)
+
+# prepare a train data set out of the big one
+train <- Smarket$Year < 2005
+Smarket.2005 <- Smarket[!train, ]
+dim(Smarket.2005)
+Smarket.Direction.2005 <- Smarket$Direction[!train]
+
+glm.fits <- glm( Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, 
+                 data = Smarket, family = binomial, subset = train)
+summary(glm.fits)
+coef(glm.fits)
+glm.probs <- predict(glm.fits, Smarket.2005, type="response")
+glm.pred <- rep("Down", 252)
+glm.pred[glm.probs > .5] <- "Up"
+table(glm.pred, Smarket.Direction.2005)
+
+mean(glm.pred == Smarket.Direction.2005) # accuracy compared with Direction 2005 
+
+mean(glm.pred != Smarket.Direction.2005) # accuracy in others
+```
+## Linear Discriminant Analysis
+
+```{r}
+lda.fit <- lda(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
+lda.fit
+summary(lda.fit)
+plot(lda.fit)
+
+```
+
+## Naive Bayes
+
+```{r}
+library(e1071)
+nb.fit <- naiveBayes(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
+nb.fit
+
+summary(nb.fit)
+
+predict(glm.fits, Smarket.2005, type="response")
+predict(nb.fit, Smarket.2005, type="raw")
 ```
