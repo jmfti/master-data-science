@@ -239,6 +239,8 @@ summary(lm.fit)
 
 ### More variables
 
+Sometimes it's easier to get a full model and just prune it with the Akaike criteria (AIC)
+
 ```{r, echo=FALSE}
 # add all terms and add all combined effects 2 on 2 (medv * age + medv*nox + ...)
 lm.fit <- lm(medv ~ . + .*., data=Boston)
@@ -271,6 +273,12 @@ carseats_model_1 <- lm(Sales ~ . + Income:Advertising + Price:Age, data=Carseats
 
 # Classification methods
 
+## Two classes 
+A discriminant function is a function that takes a vector of inputs x and tells us if it belongs to Class $C_1$ or $C_2$.
+The form of the function is $y(x) = w^T x + w_0$, where $w^T$ is the weights vector and x is the features matrix.
+
+The decision boundary is defined by the relation $y(x) = 0$ which corresponds to a $D-1$ dimensional hyperplan within a D-dimensional input space.
+
 ## Stock Market Data
 
 ```{r}
@@ -282,6 +290,20 @@ plot(Smarket$Volume)
 ```
 
 ## Logistic regression
+
+Logistic regression is equivalent to linear regression in the fact that we also model a prediction as a 
+function of a sum of terms.
+
+For this it is used the logistic function
+$$ p(x) = \dfrac{e^{\beta_0 + \beta_1 x}} {{1 + e^{\beta_0 + \beta_1 x}}}  $$
+Manipulating a bit 
+$$  \dfrac{p(x)}{1-p(x)} = e^{\beta_0 + \beta_1 x} $$
+The left hand is called ODDS, takes values between 0 and $\inf$. If p(x) = 0.8, then the odds is 0.8/0.2.
+"On average, nine out of ten people (p(x) = 0.9 => 0.9/0.1 = odds) with an odds of 9 will default"
+Making the log of both sides
+$$  log \left ( \dfrac{p(x)}{1-p(x)} \right ) = \beta_0 + \beta_1 x $$
+So, coefficients here play the following role. An increase in one unit in $\beta_1$ increases the log odds by $value(\beta_1)$
+
 We will fit a logistic regression to predict with Lag1 ... Lag5
 Use glm() with arg family = binomial
 ```{r}
@@ -343,6 +365,20 @@ plot(lda.fit)
 
 ```
 
+## Quadratic Discriminant analysis
+
+```{r}
+qda.fit <- qda(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
+qda.fit
+
+summary(qda.fit)
+
+# get the predictions 
+qda.class <- predict(qda.fit, Smarket.2005)$class
+table(qda.class, Smarket.Direction.2005)
+mean(qda.class == Smarket.Direction.2005)
+```
+
 ## Naive Bayes
 
 ```{r}
@@ -352,6 +388,74 @@ nb.fit
 
 summary(nb.fit)
 
-predict(glm.fits, Smarket.2005, type="response")
-predict(nb.fit, Smarket.2005, type="raw")
+head(predict(glm.fits, Smarket.2005, type="response"))
+head(predict(nb.fit, Smarket.2005, type="raw"))
+
+
+```
+
+## KNN (K nearest neighbors)
+
+knn(<matrix_x>, <new_x>, <groups for matrix_x>, k)
+It returns a prediction for <new_x>
+
+```{r}
+library(class)
+train.x <- cbind(Smarket$Lag1, Smarket$Lag2)[train,]
+test.x <- cbind(Smarket$Lag1, Smarket$Lag2)[!train,]
+train.direction <- Smarket$Direction[train]
+knn.pred <- knn(train.x, test.x, train.direction, k=1) # knn.pred has predictions for test.x
+table(knn.pred, Smarket$Direction[!train])
+mean(knn.pred == Smarket$Direction[!train]) # check proportion of test.x predictions correct (!train)
+
+# we try setting the hyperparameter k to 3
+knn.pred <- knn(train.x, test.x, train.direction, k=3)
+table(knn.pred, Smarket$Direction[!train])
+mean(knn.pred == Smarket$Direction[!train])
+```
+
+Now let's make a more random data set
+
+```{r}
+train <- sample(c(TRUE, FALSE), nrow(Smarket), replace=TRUE, prob=c(0.7, 0.3)) # 70% for train, 30% for test
+train.x <- cbind(Smarket$Lag1, Smarket$Lag2)[train,]
+test.x <- cbind(Smarket$Lag1, Smarket$Lag2)[!train,]
+train.direction <- Smarket$Direction[train]
+knn.pred <- knn(train.x, test.x, train.direction, k=1)
+table(knn.pred, Smarket$Direction[!train])
+mean(knn.pred == Smarket$Direction[!train])
+
+# we try setting the hyperparameter k to 3
+knn.pred <- knn(train.x, test.x, train.direction, k=3)
+table(knn.pred, Smarket$Direction[!train])
+mean(knn.pred == Smarket$Direction[!train])
+
+```
+
+When we have variables with high differences in values it can affect the prediction results.
+A difference of 1000 dolars could be much more signifficant than a difference of 50 years, but speaking in absolute terms the salary will have more impact on predictions due to its scale.
+
+So to prevent this effects we standardize variables
+
+```{r}
+set.seed(1)
+standardized.x <- scale(Caravan[,-86]) # get our data set standardized without the 86th column (Purchase)
+var(Caravan[,1])
+test <- 1:1000 # divide dataset. We we'll get 1000 values for testing, the rest will be used for training
+# well, it's just wrong. better
+train <- sample(c(TRUE, FALSE), nrow(Caravan), replace=TRUE, prob=c(0.7, 0.3)) # 70% for train, 30% for test
+train.x <- standardized.x[train,]
+test.x <- standardized.x[!train,]
+train.y <- Caravan$Purchase[train] # train y is Purchase 
+test.y <- Caravan$Purchase[!train] # in y we put Purchase
+
+knn.pred <- knn(train.x, test.x, train.y, k=1)
+mean(test.y == knn.pred) # accuracy of predictions against test datat
+# success rate
+table(knn.pred, test.y)
+
+knn.pred <- knn(train.x, test.x, train.y, k=3)
+mean(test.y == knn.pred) # accuracy of predictions against test data
+table(knn.pred, test.y)
+
 ```

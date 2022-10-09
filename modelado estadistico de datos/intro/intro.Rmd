@@ -1,0 +1,263 @@
+---
+title: "Principales técnicas estadísticas"
+author: "jmfti"
+date: "2022-10-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Conceptos básicos
+
+población: conjunto de elementos que poseen una o más características observables que se denominan criterios de definición de la población
+muestra: subconjunto de elementos extraídos de una población
+En las representaciones matriciales se suelen usar las filas para casos y las columnas para variables
+
+## Tipos de variables
+* Cualitativas
+  * ordinal : pequeño/mediano/grande
+  * dicotónmica: verdadero/falso
+  * nominal: hospital/centro...
+* Numéricas
+  * Discretas: variables discretas (numeros naturales, enteros...)
+  * continuas: (reales, racionales...)
+
+## Estadística descriptiva
+El objetivo es procesar, describir y resumir información recogida en la muestra a través de unos índices que reciben el nombre de estadísticos.
+
+## Intervalo de confianza
+
+```{r}
+
+# replicate(n, fun) repite fun n veces y devuelve un vector con n valores
+
+sum(1 * runif(50, 0, 1) < 0.4) / 50 # calcula el número de exitos en una secuencia de n ensayos (50) de bernoulli (con p = 0.4) independientes entre s. 
+
+prop_muest = replicate(19, sum(1 * runif(50,0,1) < 0.4 ) / 50)
+ic95_inf = prop_muest - 1.96 * sqrt(prop_muest * (1 - prop_muest) / 50)
+ic95_inf
+ic95_sup = prop_muest + 1.96 * sqrt(prop_muest * (1 - prop_muest) / 50)
+ic95_sup 
+
+```
+
+# Contraste de hipótesis 
+El CH permite inferir una decisión acerca de una característica de las poblaciones que se están comparando. También se puede decir que cuantifica si el azar puede explicar o no las diferencias observadas, por lo que normalmente buscaremos algo que nos ayude a rechazar la hipótesis nula $H_0$ (usualmente se considera que no hay diferencias entre ambas poblaciones) frente a la alternativa $H_1$ 
+En dicha decisión existen 2 tipos de riesgo:
+* riesgo $\alpha$ (error Tipo I): ocurre cuando se rechaza $H_0$ siendo esta cierta. En términos matemáticos $\alpha$ es la probabilidad de darse $H_1$ siendo $H_0$ verdadera, $P(H_1 | H_0)$ 
+* riesgo $\beta$ (error Tipo II): ocurre cuando se acepta $H_0$ siendo esta falsa. En términos matemáticos $\beta$ es la probabilidad $P(H_0 | H_1)$, o concluir $H_0$ siendo la alternativa.
+
+Para la proporcion muestral, el estadístico de contraste experimental $z_{exp}$ viene dado por 
+$ z_{exp} = \dfrac{\dfrac{r_1}{n} - \pi_t}{\sqrt{\pi_t (1 - \pi_t) * \dfrac{1}{n}}} $
+El valor p = $P(Z < -|z_{exp}|) + P(Z > |z_{exp}|) = 2 P(Z > |z_{exp}|)$, con Z ~ $N(0,1)$.
+
+Si se quiere comprobar 
+
+$H_0: \pi = \pi_t$
+$H_1: \pi \neq \pi_t$
+
+El estadístico z será
+
+```{r}
+z = (prop_muest - 0.4) / sqrt(0.4 * (1 - 0.4) / 50)
+```
+
+Ahora, sabemos que el valor p es $2 P(Z > |z_{exp}|)$, por lo que el valor p será
+
+Ahora construimos una tabla con cada muestra, su intervalo, su estadistico Z y su valor p
+
+```{r}
+valor_p = 2 * pnorm(-abs(z))
+
+df = data.frame(prop_muest, ic95_inf, ic95_sup, z, valor_p)
+df 
+```
+
+En este conjunto de experimentos (19 experimentos de 50 lanzamientos de una moneda con p 0.4) existen algunos resultados para lso cuales, el contraste de hipóteiss, nos hubiera hecho rechazar la hipótesis nula erróneamente (valor p menor que el valor de significación $\alpha$)
+
+```{r}
+df[valor_p < 0.05,]
+```
+
+# Respuestas dicotómicas
+
+Esquema D <- D, en el que una dicotómica Y se intenta explicar con una variable explicativa dicotómica.
+
+## estadístico z para diferencias de proporciones
+
+Lo que intuitivamente queremos hacer es medir la diferencia $p_1 - p_2$ y ver si esta diferencia es significativa.
+
+En este caso se usa un dataset en el que tenemos 2 variables, rta y exp. rta significa si un paciente se ha curado al darle el tratamiento del $exp_i$ 
+
+```{r}
+# vamos a usar una aproximacion distinta al libro para hacerlo mas sencillo
+library(dplyr)
+# cargamos los datos 
+df = read.table("d_d_1.txt", header=T)
+# agrupamos por experimento y contamos cuantos se han curado (num_curados) del tota. El total se ha calculado como (rta+1)/(rta+1) dado que esta expresión arroja 1 para cualquier RTA, de esta forma sacamos el numero total de muestras, por ultimo le añadimos la proporcion muestral de cada uno
+df2 = df %>% group_by(exp) %>% summarize(num_curados = sum(rta), num_total = sum((rta + 1)/(rta + 1)), prop = num_curados / num_total)
+
+# ahora el test para las proporciones es más sencillo
+prop.test(df2$num_curados, df2$num_total, correct=F)
+
+```
+
+## Test de Fisher
+
+Es de tipo D <- D, indicado para tamaños muestrales pequeños donde no se cumplen las asunciones del test z de diferencia de dos proporciones.
+
+El test de fisher acepta una tabla 
+
+```{r}
+df = read.table("d_d_2.txt", header=T)
+head(df)
+tabla = table(df); tabla
+fisher.test(x=tabla, alternative="two.sided")
+```
+
+# Respuesta continua
+## t de Student
+El test t de Student de diferencia de dos medias está enmarcado en el esquema C <- D. Es decir, una dicotómica explica una contínua. 
+La pregunta de si X influye en Y se traduce en comparar las medias poblacionales de ambos grupos y usar el estadístico $\theta = \mu_1 - \mu_2$, en la hipótesis nula consideramos cierta dicha identidad. Por tanto buscaremos un valor p que nos permita rechazar la hipótesis nula.
+En este caso ha que distinguir ciertos casos
+* Se asume $\sigma_1 = \sigma_2$ (homocedasticidad)
+* No se puede asumir
+
+```{r}
+df = read.table("c_d_1.txt", header=T)
+df2 = df %>% group_by(exp) %>% summarize(avg = mean(rta), dev = sd(rta))
+shapiro.test(df$rta[df$exp == 1])
+shapiro.test(df$rta[df$exp == 2])
+# no hay evidencia para rechazar la hipotesis nula de normalidad en ningun caso
+library(lawstat)
+levene.test(df$rta, df$exp, location="mean")
+# el valor p del test de levene da 0.89 por lo que no hay evidencia suficiente para rechazar la hipotesis nula de homocedasticidad (sigma1 = sigma2)
+```
+
+Dado que se cumplen las condiciones de aplicación para la t de student (homocedasticidad y normalidad) se calcula el estadístico de contraste y su p-valor
+
+```{r}
+t.test(df$rta[df$exp == 1], df$rta[df$exp == 2], var.equal=T)
+```
+
+El valor p es 0.94, por lo que no hay evidencia suficiente para rechazar la hipótesis nula ($\mu_1 - \mu_2 = 0$), lo que implica que 
+
+## ANOVA de un factor
+
+Está enmarcado en el esquema C <- N, es decir, una variable nominal explicativa para una variable contínua.
+Un ejemplo de este esquema sería si una variable explicativa (dieta1, dieta2) influye en la variable contínuna (peso en gramos).
+En este caso partiremos de 3 experimentos (3 tipos de dieta) que usaremos para ver si influye en el peso. En este caso la hipotesis nula será $H_0 : \mu_1 = \mu_2 = \mu_3 $ 
+Y la alternativa
+$H_1: \text{alguna } \mu_i \text{ es distinta}$
+
+Normalmente viene en forma de una tabla con una variable de respuesta Y y una variable explicativa X que va tomando distintos valores
+
+### Ejemplo
+
+```{r}
+df = read.table("c_n_1.txt", header=T)
+head(df)
+# comprobar normalidad para cada grupo
+shapiro.test(df$rta[df$exp == 1]); shapiro.test(df$rta[df$exp == 2]); shapiro.test(df$rta[df$exp == 3]); 
+# comprobar homocedasticidad
+levene.test(df$rta, df$exp, location="mean")
+
+# dado que se cumplen las condiciones para anova de un factor, se calcula el estadístico de contraste y el valor p asociado
+summary(aov(rta ~ exp, data=df))
+```
+
+# Respuesta nominal
+
+## $\chi^2$ de homogeneidad
+Es un esquema N <- N, es decir, nominal a nominal. 
+Un ejemplo de caso sería someter a n grupos a n dietas distintas y ver qué tipo de efectos adversos.
+La pregunta de si X (la dieta) influye en Y (efectos adversos) se traduce en realizar el contraste de hipótesis
+$H_0: No hay diferencia entre grupos$
+$H_1: Hay alguna diferencia entre grupos$
+
+Se construye una tabla cruzada y se usa una $\chi^2$. Se asume homogeneidad, todos los valores de las frecuencias esperadas $e_{ij} > 5$, se asume tamaño de muestra grande. 
+
+### Ejemplo
+Estudio, 100 individuos, 3 grupos
+```{r}
+df = read.table("n_n_1.txt", header=T)
+head(df)
+tabla = table(df)
+chisq.test(tabla)$expected
+```
+La tabla de frecuencias esperadas bajo condiciones de homogeneidad (no diferencia entre grupos) muestra que para X = 1
+```{r}
+
+chisq.test(tabla)
+```
+Se trata de averiguar si la variable explicativa (x) influye de alguna manera en la frecuencia de ocurrencia de dicho evento (y), es decir, todas las dietas o tratamientos deberían arrojar cantidades de efectos adversos identicamente distribuidos.
+
+# Respuesta ordinal
+Aquí se tratan los siguientes tests
+* U de Mann-Whitney: O <- D, explicar Y ordinal mediante X dicotómica
+* W de Wilcoxon: O <- D
+* H de Kruskal-Wallis: O <- N, explica Y ordinal mediante X nominal
+
+## U de Mann-Whitney
+Esquema O <- D: explicar Y ordinal (1,2,3) mediante X dicotómica. 
+Se puede usar también en el esquema  $C \leftarrow D | \exists x \left ( y \nsim N(\mu, \sigma) \right )$, es decir, en casos donde Y no es normal para cada alguna categoría.
+La situación O <- D se da cuando se quiere estudiar si la variable grado de mejoría. Por ejemplo: 1 algo, 2 bastante, 3 casi total y 4 total se ve influida por la variable X.
+Se realiza un estudio de n individuos, se asigna trat1 a n1, trat2 a n2... y se observa qué valor ordinal tienen en mejoria.
+
+En la tabla por tanto tendremos registros (mejoria, tratamiento)
+
+La pregunta de si X influye en Y se traduce en
+$H_0: F_1 = F_2$
+$H_1: F_1 \neq F_2$
+Sienfo $F_1$ y $F_2$ las funciones de distribución de la variable respuesta para el grupo 1 y el grupo 2
+
+```{r}
+library(ggplot2)
+
+df = read.table("o_d_1.txt", header=T)
+boxplot(df$rta[df$exp == 1], df$rta[df$exp == 2], names=c("1", "2"), col=(c("white", "gray")), xlab="Grupo 1 (white), Grupo 2 (gray)", ylab="Rta")
+
+ggplot(df) +
+  aes(x = "", y = rta, fill = exp, group = exp) +
+  geom_boxplot() +
+  scale_fill_distiller(palette = "Dark2", direction = 1) +
+  theme_minimal()
+
+wilcox.test(df$rta[df$exp == 1], df$rta[df$exp == 2], correct=F)
+
+```
+El valor p es 0.55, no está por debajo del nivel de significación, por lo que no hay evidencia para rechazar la igualdad de distribuciones para ambos grupos.
+
+
+## W de Wilcoxon
+
+Se enmarca en Dicotómica -> Ordinal. Tienen el mismo aspecto que el anterior. 
+En este test se construyen W1 y W2 $$W_i = \sum_{grupo_1} Rangos$$ y se construye un estadístico de contraste z de distribución N(0,1)
+
+Este test se basa en asignar a cada observación un rango según el orden que ocupe dicha observación en el cómputo total de los datos, asignando el rango medio en caso de empates.
+
+```{r}
+# en R se usa wilcox.test, que en lugar de hacer el test de wilcoxon hace el u de mann-whitney
+wilcox.test(df$rta[df$exp == 1], df$rta[df$exp == 2], correct=F)
+```
+
+## H de Kruskal-Wallis
+
+Se enmarca en O <- N, nominal explica ordinal.También se puede usar en C <- N(nominal explica continua) donde no se cumpla que Y sea normal en cada categoría de la cualitativa X.
+Al ser ordinal pueden ser tipo likert (1 poco o nada, 2 algo, medio, alto, muy alto) o codificar otros valores (1 -> menos de 0.5 kg, 2 entre 2 y 5, 3 entre 5 y 10...)
+
+La pregunta de si X influye en Y se traduce en realizar el contraste de hipótesis
+
+$H_0: F_1 = F_2 = F_3$
+$H_1: \text{alguna } F_i \text{ es distinta} $
+Siendo $F_i$ las funciones de distribución de la variable respuesta para el grupo 1, 2 y 3.
+
+Ejemplo
+
+```{r}
+df = read.table("o_n_1.txt", header=T)
+summary(df)
+kruskal.test(rta ~ exp, data=df)
+```

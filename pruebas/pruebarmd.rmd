@@ -1,0 +1,53 @@
+---
+title: "Report_test"
+author: "jmfti"
+date: "2022-09-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+```
+# Report
+
+
+```{r}
+df <- read.csv("C:/temp/demoqabook/result.csv")
+head(df)
+
+summary(df)
+
+req_durations <- df[df$metric_name == "http_req_duration",]
+req_sending <- df[df$metric_name == "http_req_sending",]
+req_failed <- df[df$metric_name == "http_req_failed",]
+
+group_durations <- df[df$metric_name == "group_duration",]
+```
+## Response times distribution by groups
+```{r}
+
+ggplot(req_durations) +
+  aes(x = "", y = metric_value, fill = group) +
+  geom_violin(adjust = 1L, scale = "area") +
+  scale_fill_brewer(palette = "Dark2", direction = 1) +
+  labs(x = "actions", y = "ms") +
+  theme_minimal()
+```
+## Number of requests sending
+Must fix: aggregate by sec
+```{r}
+
+ggplot(req_sending) +
+  aes(x = timestamp, y = metric_value) +
+  geom_line(size = 0.5, colour = "#112446") +
+  theme_minimal() +
+  facet_wrap(vars(group))
+
+# number of errors
+errors <- df %>% filter(metric_name == "http_req_failed") %>% select(metric_value, group) %>% 
+  group_by(group) %>% summarize(sum_errors = sum(metric_value, na.rm=TRUE))
+errors
+
+```
