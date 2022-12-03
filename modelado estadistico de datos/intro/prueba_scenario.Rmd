@@ -1,0 +1,94 @@
+---
+title: "Scenario comparison"
+output: html_document
+---
+
+# Context
+A scenario must be defined to do a performance test over a rest service.
+We took data from production on a Monday, to see how many requests/m should we simulate. 
+
+It turned that we have seen there are differences between a saturday and a monday, probably due to different tasks and differnete type of use of the application during weekend and working days.
+
+Dia is the day the sample was took from.
+
+```{r}
+df = read.csv("uriscsv_ordinals.csv", header=T)
+head(df)
+df$uriNominal = factor(df$uriNominal)
+df$uri = factor(df$uri)
+library(ggplot2)
+```
+
+In this data, each uri is mapped to a uriNominal. Count is the number of requests/min that method had in that period.
+
+Plotting a boxplot we see differences in the distribution 
+
+```{r}
+ggplot(aes(x=factor(uriNominal),y=count, color=uriNominal), data = df) + geom_violin() + geom_boxplot() + facet_grid(. ~ dia)
+```
+
+# Significant differences
+
+In order to see if there's a significant difference between samples, we will try a chi squared test for homogeneicity.
+
+```{r}
+msabado = as.table(rbind(df$count[df$dia == "sabado 8"], df$count[df$dia == "sabado 1"]))
+dimnames(msabado) = list(c("sabado 8", "sabado 1"), df$uriNominal[df$dia == "sabado 8"])
+chisq.test(msabado)
+# p value is 0.87, it's greater than the signifficance level alpha = 0.05 so there's not enough evidence to reject the null hypothesis (both looks correctly proportioned)
+mlunes = as.table(rbind(df$count[df$dia == "lunes 10"], df$count[df$dia == "lunes 3"]))
+dimnames(mlunes) = list(c("lunes 10", "sabado 1"), df$uriNominal[df$dia == "lunes 3"])
+chisq.test(mlunes)
+# again, a high p-value which indicates there's no reason to reject the null hypothesis, so we don't reject that the 2 samples are equally distributed
+```
+
+
+Now, if we get saturday sample and compare against monday sample we get
+
+```{r}
+msabadolunes = as.table(rbind(df$count[df$dia == "sabado 1"], df$count[df$dia == "lunes 3"]))
+dimnames(msabadolunes) = list(c("sabado 1", "lunes 3"), df$uriNominal[df$dia == "lunes 3"])
+chisq.test(msabadolunes)
+```
+
+A p-value below significance level 0.05 suggests strong evidence against the null hypothesis (no differences at all), so we reject it. There is a signifficant difference in the frequencies.
+
+It allows to conclude that, on Saturday (Sabado) different tasks are beeing performed so a different 
+
+
+```{r}
+# viernes -> lunes y sabado
+df3 = read.csv("updated_uris.csv", header=T)
+mviernessabado = as.table(rbind(df3$count[df3$dia == "viernes 7"], df3$count[df3$dia == "sabado 8"]))
+dimnames(mviernessabado) = list(c("viernes 7", "sabado 8"), df3$uriNominal[df3$dia == "sabado 8"])
+chisq.test(mviernessabado)
+
+mvierneslunes = as.table(rbind(df3$count[df3$dia == "viernes 7"], df3$count[df3$dia == "lunes 3"]))
+dimnames(mvierneslunes) = list(c("viernes 7", "lunes 3"), df3$uriNominal[df3$dia == "lunes 3"])
+res = chisq.test(mvierneslunes)
+res
+res$method
+
+```
+
+
+A que se deben estas diferencias?
+
+```{r}
+sabado8 = df$count[df$dia == "sabado 8"]
+sabado1 = df$count[df$dia == "sabado 1"]
+lunes10 = df$count[df$dia == "lunes 10"]
+lunes3 = df$count[df$dia == "lunes 3"]
+
+
+chisq.test(sabado8, p= sabado1 / sum(sabado1))
+#chisq.test(sabado1, p= sabado8 / sum(sabado8))
+
+chisq.test(lunes3, p= lunes10 / sum(lunes10))
+#chisq.test(lunes10, p= lunes3 / sum(lunes3))
+
+chisq.test(lunes3, p=sabado1 / sum(sabado1))
+
+#chisq.test(sabado1, p= viernes / sum(viernes))
+chisq.test(viernes, p= sabado8 / sum(sabado8))
+```

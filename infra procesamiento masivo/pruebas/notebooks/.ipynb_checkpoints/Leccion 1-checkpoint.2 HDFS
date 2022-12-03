@@ -1,0 +1,543 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# HDFS"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Configured Capacity: 1077961572352 (1003.93 GB)\n",
+      "Present Capacity: 861631037440 (802.46 GB)\n",
+      "DFS Remaining: 861630873600 (802.46 GB)\n",
+      "DFS Used: 163840 (160 KB)\n",
+      "DFS Used%: 0.00%\n",
+      "Replicated Blocks:\n",
+      "\tUnder replicated blocks: 0\n",
+      "\tBlocks with corrupt replicas: 0\n",
+      "\tMissing blocks: 0\n",
+      "\tMissing blocks (with replication factor 1): 0\n",
+      "\tLow redundancy blocks with highest priority to recover: 0\n",
+      "\tPending deletion blocks: 0\n",
+      "Erasure Coded Block Groups: \n",
+      "\tLow redundancy block groups: 0\n",
+      "\tBlock groups with corrupt internal blocks: 0\n",
+      "\tMissing block groups: 0\n",
+      "\tLow redundancy blocks with highest priority to recover: 0\n",
+      "\tPending deletion blocks: 0\n",
+      "\n",
+      "-------------------------------------------------\n",
+      "Live datanodes (4):\n",
+      "\n",
+      "Name: 172.19.0.2:9866 (pruebas_datanode_1.pruebas_hadoop)\n",
+      "Hostname: 4bd7598acbe2\n",
+      "Decommission Status : Normal\n",
+      "Configured Capacity: 269490393088 (250.98 GB)\n",
+      "DFS Used: 45056 (44 KB)\n",
+      "Non DFS Used: 40321966080 (37.55 GB)\n",
+      "DFS Remaining: 215407710208 (200.61 GB)\n",
+      "DFS Used%: 0.00%\n",
+      "DFS Remaining%: 79.93%\n",
+      "Configured Cache Capacity: 0 (0 B)\n",
+      "Cache Used: 0 (0 B)\n",
+      "Cache Remaining: 0 (0 B)\n",
+      "Cache Used%: 100.00%\n",
+      "Cache Remaining%: 0.00%\n",
+      "Xceivers: 0\n",
+      "Last contact: Wed Oct 19 19:00:58 CEST 2022\n",
+      "Last Block Report: Wed Oct 19 18:39:34 CEST 2022\n",
+      "Num of Blocks: 1\n",
+      "\n",
+      "\n",
+      "Name: 172.19.0.5:9866 (pruebas_datanode_3.pruebas_hadoop)\n",
+      "Hostname: e0c6818723b6\n",
+      "Decommission Status : Normal\n",
+      "Configured Capacity: 269490393088 (250.98 GB)\n",
+      "DFS Used: 45056 (44 KB)\n",
+      "Non DFS Used: 40321966080 (37.55 GB)\n",
+      "DFS Remaining: 215407710208 (200.61 GB)\n",
+      "DFS Used%: 0.00%\n",
+      "DFS Remaining%: 79.93%\n",
+      "Configured Cache Capacity: 0 (0 B)\n",
+      "Cache Used: 0 (0 B)\n",
+      "Cache Remaining: 0 (0 B)\n",
+      "Cache Used%: 100.00%\n",
+      "Cache Remaining%: 0.00%\n",
+      "Xceivers: 0\n",
+      "Last contact: Wed Oct 19 19:00:58 CEST 2022\n",
+      "Last Block Report: Wed Oct 19 18:39:34 CEST 2022\n",
+      "Num of Blocks: 1\n",
+      "\n",
+      "\n",
+      "Name: 172.19.0.6:9866 (pruebas_datanode_2.pruebas_hadoop)\n",
+      "Hostname: c747d0215a08\n",
+      "Decommission Status : Normal\n",
+      "Configured Capacity: 269490393088 (250.98 GB)\n",
+      "DFS Used: 28672 (28 KB)\n",
+      "Non DFS Used: 40321949696 (37.55 GB)\n",
+      "DFS Remaining: 215407742976 (200.61 GB)\n",
+      "DFS Used%: 0.00%\n",
+      "DFS Remaining%: 79.93%\n",
+      "Configured Cache Capacity: 0 (0 B)\n",
+      "Cache Used: 0 (0 B)\n",
+      "Cache Remaining: 0 (0 B)\n",
+      "Cache Used%: 100.00%\n",
+      "Cache Remaining%: 0.00%\n",
+      "Xceivers: 0\n",
+      "Last contact: Wed Oct 19 19:00:55 CEST 2022\n",
+      "Last Block Report: Wed Oct 19 18:39:34 CEST 2022\n",
+      "Num of Blocks: 0\n",
+      "\n",
+      "\n",
+      "Name: 172.19.0.7:9866 (pruebas_datanode_4.pruebas_hadoop)\n",
+      "Hostname: ad6d54b0f234\n",
+      "Decommission Status : Normal\n",
+      "Configured Capacity: 269490393088 (250.98 GB)\n",
+      "DFS Used: 45056 (44 KB)\n",
+      "Non DFS Used: 40321966080 (37.55 GB)\n",
+      "DFS Remaining: 215407710208 (200.61 GB)\n",
+      "DFS Used%: 0.00%\n",
+      "DFS Remaining%: 79.93%\n",
+      "Configured Cache Capacity: 0 (0 B)\n",
+      "Cache Used: 0 (0 B)\n",
+      "Cache Remaining: 0 (0 B)\n",
+      "Cache Used%: 100.00%\n",
+      "Cache Remaining%: 0.00%\n",
+      "Xceivers: 0\n",
+      "Last contact: Wed Oct 19 19:00:58 CEST 2022\n",
+      "Last Block Report: Wed Oct 19 18:39:34 CEST 2022\n",
+      "Num of Blocks: 1\n",
+      "\n",
+      "\n"
+     ]
+    }
+   ],
+   "source": [
+    "# Visualizar la info del cluster\n",
+    "!hdfs dfsadmin -report"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "--help: Unknown command\r\n",
+      "Usage: hadoop fs [generic options]\r\n",
+      "\t[-appendToFile <localsrc> ... <dst>]\r\n",
+      "\t[-cat [-ignoreCrc] <src> ...]\r\n",
+      "\t[-checksum [-v] <src> ...]\r\n",
+      "\t[-chgrp [-R] GROUP PATH...]\r\n",
+      "\t[-chmod [-R] <MODE[,MODE]... | OCTALMODE> PATH...]\r\n",
+      "\t[-chown [-R] [OWNER][:[GROUP]] PATH...]\r\n",
+      "\t[-concat <target path> <src path> <src path> ...]\r\n",
+      "\t[-copyFromLocal [-f] [-p] [-l] [-d] [-t <thread count>] <localsrc> ... <dst>]\r\n",
+      "\t[-copyToLocal [-f] [-p] [-ignoreCrc] [-crc] <src> ... <localdst>]\r\n",
+      "\t[-count [-q] [-h] [-v] [-t [<storage type>]] [-u] [-x] [-e] [-s] <path> ...]\r\n",
+      "\t[-cp [-f] [-p | -p[topax]] [-d] <src> ... <dst>]\r\n",
+      "\t[-createSnapshot <snapshotDir> [<snapshotName>]]\r\n",
+      "\t[-deleteSnapshot <snapshotDir> <snapshotName>]\r\n",
+      "\t[-df [-h] [<path> ...]]\r\n",
+      "\t[-du [-s] [-h] [-v] [-x] <path> ...]\r\n",
+      "\t[-expunge [-immediate] [-fs <path>]]\r\n",
+      "\t[-find <path> ... <expression> ...]\r\n",
+      "\t[-get [-f] [-p] [-ignoreCrc] [-crc] <src> ... <localdst>]\r\n",
+      "\t[-getfacl [-R] <path>]\r\n",
+      "\t[-getfattr [-R] {-n name | -d} [-e en] <path>]\r\n",
+      "\t[-getmerge [-nl] [-skip-empty-file] <src> <localdst>]\r\n",
+      "\t[-head <file>]\r\n",
+      "\t[-help [cmd ...]]\r\n",
+      "\t[-ls [-C] [-d] [-h] [-q] [-R] [-t] [-S] [-r] [-u] [-e] [<path> ...]]\r\n",
+      "\t[-mkdir [-p] <path> ...]\r\n",
+      "\t[-moveFromLocal [-f] [-p] [-l] [-d] <localsrc> ... <dst>]\r\n",
+      "\t[-moveToLocal <src> <localdst>]\r\n",
+      "\t[-mv <src> ... <dst>]\r\n",
+      "\t[-put [-f] [-p] [-l] [-d] [-t <thread count>] <localsrc> ... <dst>]\r\n",
+      "\t[-renameSnapshot <snapshotDir> <oldName> <newName>]\r\n",
+      "\t[-rm [-f] [-r|-R] [-skipTrash] [-safely] <src> ...]\r\n",
+      "\t[-rmdir [--ignore-fail-on-non-empty] <dir> ...]\r\n",
+      "\t[-setfacl [-R] [{-b|-k} {-m|-x <acl_spec>} <path>]|[--set <acl_spec> <path>]]\r\n",
+      "\t[-setfattr {-n name [-v value] | -x name} <path>]\r\n",
+      "\t[-setrep [-R] [-w] <rep> <path> ...]\r\n",
+      "\t[-stat [format] <path> ...]\r\n",
+      "\t[-tail [-f] [-s <sleep interval>] <file>]\r\n",
+      "\t[-test -[defswrz] <path>]\r\n",
+      "\t[-text [-ignoreCrc] <src> ...]\r\n",
+      "\t[-touch [-a] [-m] [-t TIMESTAMP (yyyyMMdd:HHmmss) ] [-c] <path> ...]\r\n",
+      "\t[-touchz <path> ...]\r\n",
+      "\t[-truncate [-w] <length> <path> ...]\r\n",
+      "\t[-usage [cmd ...]]\r\n",
+      "\r\n",
+      "Generic options supported are:\r\n",
+      "-conf <configuration file>        specify an application configuration file\r\n",
+      "-D <property=value>               define a value for a given property\r\n",
+      "-fs <file:///|hdfs://namenode:port> specify default filesystem URL to use, overrides 'fs.defaultFS' property from configurations.\r\n",
+      "-jt <local|resourcemanager:port>  specify a ResourceManager\r\n",
+      "-files <file1,...>                specify a comma-separated list of files to be copied to the map reduce cluster\r\n",
+      "-libjars <jar1,...>               specify a comma-separated list of jar files to be included in the classpath\r\n",
+      "-archives <archive1,...>          specify a comma-separated list of archives to be unarchived on the compute machines\r\n",
+      "\r\n",
+      "The general command line syntax is:\r\n",
+      "command [genericOptions] [commandOptions]\r\n",
+      "\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!hadoop fs --help"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "mkdir: `/user/root/input': File exists\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!hadoop fs -mkdir /user/root/input"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Comandos básicos"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "copyFromLocal: `/user/root/input/texto.txt': File exists\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!hadoop fs -copyFromLocal /dataset/* /user/root/input"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Found 3 items\r\n",
+      "drwxr-xr-x   - root supergroup          0 2022-10-19 19:04 /user/root/input/2.1\r\n",
+      "-rw-r--r--   3 root supergroup     664067 2022-10-19 19:04 /user/root/input/googleplaystoreV3.csv\r\n",
+      "-rw-r--r--   3 root supergroup         92 2022-10-15 12:50 /user/root/input/texto.txt\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!hadoop fs -ls /user/root/input"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!hadoop fs -copyToLocal /user/root/input/texto.txt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Esto es un ejemplo de programación mapreduce.\r\n",
+      "Esto es un ejemplo de contador de palabras. \r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!hadoop fs -cat /user/root/input/texto.txt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0,Photo Editor & Candy Camera & Grid & ScrapBook,ART_AND_DESIGN,4.1,159,10000,Free,0\r\n",
+      "1,Coloring book moana,ART_AND_DESIGN,3.9,967,500000,Free,0\r\n",
+      "2,U Launcher Lite – FREE Live Cool Themes Hide Apps,ART_AND_DESIGN,4.7,87510,5000000,Free,0\r\n",
+      "3,Sketch - Draw & Paint,ART_AND_DESIGN,4.5,215644,50000000,Free,0\r\n",
+      "4,Pixel Draw - Number Art Coloring Book,ART_AND_DESIGN,4.3,967,100000,Free,0\r\n",
+      "5,Paper flowers instructions,ART_AND_DESIGN,4.4,167,50000,Free,0\r\n",
+      "6,Smoke Effect Photo Maker - Smoke Editor,ART_AND_DESIGN,3.8,178,50000,Free,0\r\n",
+      "7,Infinite Painter,ART_AND_DESIGN,4.1,36815,1000000,Free,0\r\n",
+      "8,Garden Coloring Book,ART_AND_DESIGN,4.4,13791,1000000,Free,0\r\n",
+      "9,Kids Paint Free - Drawing Fun,ART_AND_DESIGN,4.7,121,10000,Free,0\r\n",
+      "10,Text on Photo - Fonteee,ART_AND_DESIGN,4.4,13880,1000000,Free,0\r\n",
+      "11,Name Art Photo Editor - Focus n Filters,ART_AND_DESIGN,4.4,8788,1000000,Free,0\r\n",
+      "12,Tattoo Name On My Photo Editor,ART_AND_DESIGN,4.2,44829,10000000,Free,0\r\n",
+      "13,Mandala Coloring Book,ART_AND_DESIGN,4.6,4326,100000,Free,0\r\n",
+      "14,3D Color Pixel by Nu"
+     ]
+    }
+   ],
+   "source": [
+    "!hadoop fs -head /user/root/input/googleplaystoreV3.csv"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Replication 2 set: /user/root/input/texto.txt\n",
+      "Waiting for /user/root/input/texto.txt ...\n",
+      "WARNING: the waiting time may be long for DECREASING the number of replications.\n",
+      ". done\n"
+     ]
+    }
+   ],
+   "source": [
+    "# setear replicacion\n",
+    "!hadoop fs -setrep -w 2 /user/root/input/texto.txt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Found 3 items\r\n",
+      "drwxr-xr-x   - root supergroup          0 2022-10-19 19:04 /user/root/input/2.1\r\n",
+      "-rw-r--r--   3 root supergroup     664067 2022-10-19 19:04 /user/root/input/googleplaystoreV3.csv\r\n",
+      "-rw-r--r--   2 root supergroup         92 2022-10-15 12:50 /user/root/input/texto.txt\r\n"
+     ]
+    }
+   ],
+   "source": [
+    "!hadoop fs -ls /user/root/input"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Connecting to namenode via http://namenode:9870/fsck?ugi=root&files=1&blocks=1&path=%2F\n",
+      "FSCK started by root (auth:SIMPLE) from /172.19.0.4 for path / at Wed Oct 19 19:08:40 CEST 2022\n",
+      "\n",
+      "/ <dir>\n",
+      "/tmp <dir>\n",
+      "/tmp/hadoop-yarn <dir>\n",
+      "/tmp/hadoop-yarn/staging <dir>\n",
+      "/tmp/hadoop-yarn/staging/history <dir>\n",
+      "/tmp/hadoop-yarn/staging/history/done <dir>\n",
+      "/tmp/hadoop-yarn/staging/history/done_intermediate <dir>\n",
+      "/tmp/hive <dir>\n",
+      "/tmp/hive/_resultscache_ <dir>\n",
+      "/tmp/hive/_resultscache_/results-0777235b-3e57-47b5-8e06-362a7eb4937a <dir>\n",
+      "/tmp/hive/_resultscache_/results-28ef20e0-6c1d-484d-a7f6-192ddb89e1ce <dir>\n",
+      "/tmp/hive/root <dir>\n",
+      "/tmp/hive/root/120cfe92-8e16-4b84-89ec-480f8e917ce1 <dir>\n",
+      "/tmp/hive/root/120cfe92-8e16-4b84-89ec-480f8e917ce1/_tmp_space.db <dir>\n",
+      "/tmp/hive/root/5c9ea5d4-f3db-4771-8129-d27776123d9e <dir>\n",
+      "/tmp/hive/root/5c9ea5d4-f3db-4771-8129-d27776123d9e/_tmp_space.db <dir>\n",
+      "/tmp/hive/root/61faa304-63a0-4db0-b51c-2f9f8a7e8213 <dir>\n",
+      "/tmp/hive/root/61faa304-63a0-4db0-b51c-2f9f8a7e8213/_tmp_space.db <dir>\n",
+      "/tmp/hive/root/7004fc03-04b1-4482-ac38-7969b1fa7a53 <dir>\n",
+      "/tmp/hive/root/7004fc03-04b1-4482-ac38-7969b1fa7a53/_tmp_space.db <dir>\n",
+      "/tmp/hive/root/7273ec7a-c64b-4a55-9c2b-9774a558ee63 <dir>\n",
+      "/tmp/hive/root/7273ec7a-c64b-4a55-9c2b-9774a558ee63/_tmp_space.db <dir>\n",
+      "/tmp/hive/root/b5281fe2-5624-4b34-aa6f-2208ee2f26b6 <dir>\n",
+      "/tmp/hive/root/b5281fe2-5624-4b34-aa6f-2208ee2f26b6/_tmp_space.db <dir>\n",
+      "/tmp/hive/root/e2717365-81f7-4b56-8d98-9a37ac00814f <dir>\n",
+      "/tmp/hive/root/e2717365-81f7-4b56-8d98-9a37ac00814f/_tmp_space.db <dir>\n",
+      "/tmp/hive/root/f821ab51-24f3-4f2b-a215-6dfb5d7f0bdb <dir>\n",
+      "/tmp/hive/root/f821ab51-24f3-4f2b-a215-6dfb5d7f0bdb/_tmp_space.db <dir>\n",
+      "/user <dir>\n",
+      "/user/hive <dir>\n",
+      "/user/hive/warehouse <dir>\n",
+      "/user/root <dir>\n",
+      "/user/root/input <dir>\n",
+      "/user/root/input/2.1 <dir>\n",
+      "/user/root/input/2.1/HR2018c.csv 2881 bytes, replicated: replication=3, 1 block(s):  OK\n",
+      "0. BP-858413720-172.17.0.2-1624180586568:blk_1073741827_1003 len=2881 Live_repl=3\n",
+      "\n",
+      "/user/root/input/2.1/HR2019c.csv 2892 bytes, replicated: replication=3, 1 block(s):  OK\n",
+      "0. BP-858413720-172.17.0.2-1624180586568:blk_1073741826_1002 len=2892 Live_repl=3\n",
+      "\n",
+      "/user/root/input/2.1/lifeExpectancyAtBirthc.csv 13413 bytes, replicated: replication=3, 1 block(s):  OK\n",
+      "0. BP-858413720-172.17.0.2-1624180586568:blk_1073741828_1004 len=13413 Live_repl=3\n",
+      "\n",
+      "/user/root/input/googleplaystoreV3.csv 664067 bytes, replicated: replication=3, 1 block(s):  OK\n",
+      "0. BP-858413720-172.17.0.2-1624180586568:blk_1073741829_1005 len=664067 Live_repl=3\n",
+      "\n",
+      "/user/root/input/texto.txt 92 bytes, replicated: replication=2, 1 block(s):  OK\n",
+      "0. BP-858413720-172.17.0.2-1624180586568:blk_1073741825_1001 len=92 Live_repl=2\n",
+      "\n",
+      "\n",
+      "Status: HEALTHY\n",
+      " Number of data-nodes:\t4\n",
+      " Number of racks:\t\t1\n",
+      " Total dirs:\t\t\t34\n",
+      " Total symlinks:\t\t0\n",
+      "\n",
+      "Replicated Blocks:\n",
+      " Total size:\t683345 B\n",
+      " Total files:\t5\n",
+      " Total blocks (validated):\t5 (avg. block size 136669 B)\n",
+      " Minimally replicated blocks:\t5 (100.0 %)\n",
+      " Over-replicated blocks:\t0 (0.0 %)\n",
+      " Under-replicated blocks:\t0 (0.0 %)\n",
+      " Mis-replicated blocks:\t\t0 (0.0 %)\n",
+      " Default replication factor:\t3\n",
+      " Average block replication:\t2.8\n",
+      " Missing blocks:\t\t0\n",
+      " Corrupt blocks:\t\t0\n",
+      " Missing replicas:\t\t0 (0.0 %)\n",
+      " Blocks queued for replication:\t0\n",
+      "\n",
+      "Erasure Coded Block Groups:\n",
+      " Total size:\t0 B\n",
+      " Total files:\t0\n",
+      " Total block groups (validated):\t0\n",
+      " Minimally erasure-coded block groups:\t0\n",
+      " Over-erasure-coded block groups:\t0\n",
+      " Under-erasure-coded block groups:\t0\n",
+      " Unsatisfactory placement block groups:\t0\n",
+      " Average block group size:\t0.0\n",
+      " Missing block groups:\t\t0\n",
+      " Corrupt block groups:\t\t0\n",
+      " Missing internal blocks:\t0\n",
+      " Blocks queued for replication:\t0\n",
+      "FSCK ended at Wed Oct 19 19:08:40 CEST 2022 in 5 milliseconds\n",
+      "\n",
+      "\n",
+      "The filesystem under path '/' is HEALTHY\n"
+     ]
+    }
+   ],
+   "source": [
+    "# comprobar inconsistencias\n",
+    "!hdfs fsck / -files -blocks"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "2022-10-19 19:10:31,494 INFO balancer.Balancer: namenodes  = [hdfs://namenode:8020]\n",
+      "2022-10-19 19:10:31,497 INFO balancer.Balancer: parameters = Balancer.BalancerParameters [BalancingPolicy.Node, threshold = 10.0, max idle iteration = 5, #excluded nodes = 0, #included nodes = 0, #source nodes = 0, #blockpools = 0, run during upgrade = false]\n",
+      "2022-10-19 19:10:31,497 INFO balancer.Balancer: included nodes = []\n",
+      "2022-10-19 19:10:31,497 INFO balancer.Balancer: excluded nodes = []\n",
+      "2022-10-19 19:10:31,497 INFO balancer.Balancer: source nodes = []\n",
+      "Time Stamp               Iteration#  Bytes Already Moved  Bytes Left To Move  Bytes Being Moved  NameNode\n",
+      "2022-10-19 19:10:31,499 INFO balancer.NameNodeConnector: getBlocks calls for hdfs://namenode:8020 will be rate-limited to 20 per second\n",
+      "2022-10-19 19:10:32,126 INFO balancer.Balancer: dfs.namenode.get-blocks.max-qps = 20 (default=20)\n",
+      "2022-10-19 19:10:32,126 INFO balancer.Balancer: dfs.balancer.movedWinWidth = 5400000 (default=5400000)\n",
+      "2022-10-19 19:10:32,126 INFO balancer.Balancer: dfs.balancer.moverThreads = 1000 (default=1000)\n",
+      "2022-10-19 19:10:32,127 INFO balancer.Balancer: dfs.balancer.dispatcherThreads = 200 (default=200)\n",
+      "2022-10-19 19:10:32,127 INFO balancer.Balancer: dfs.balancer.getBlocks.size = 2147483648 (default=2147483648)\n",
+      "2022-10-19 19:10:32,127 INFO balancer.Balancer: dfs.balancer.getBlocks.min-block-size = 10485760 (default=10485760)\n",
+      "2022-10-19 19:10:32,127 INFO balancer.Balancer: dfs.datanode.balance.max.concurrent.moves = 100 (default=100)\n",
+      "2022-10-19 19:10:32,127 INFO balancer.Balancer: dfs.datanode.balance.bandwidthPerSec = 104857600 (default=104857600)\n",
+      "2022-10-19 19:10:32,131 INFO balancer.Balancer: dfs.balancer.max-size-to-move = 10737418240 (default=10737418240)\n",
+      "2022-10-19 19:10:32,131 INFO balancer.Balancer: dfs.blocksize = 134217728 (default=134217728)\n",
+      "2022-10-19 19:10:32,146 INFO net.NetworkTopology: Adding a new node: /default-rack/172.19.0.6:9866\n",
+      "2022-10-19 19:10:32,146 INFO net.NetworkTopology: Adding a new node: /default-rack/172.19.0.5:9866\n",
+      "2022-10-19 19:10:32,146 INFO net.NetworkTopology: Adding a new node: /default-rack/172.19.0.7:9866\n",
+      "2022-10-19 19:10:32,146 INFO net.NetworkTopology: Adding a new node: /default-rack/172.19.0.2:9866\n",
+      "2022-10-19 19:10:32,148 INFO balancer.Balancer: 0 over-utilized: []\n",
+      "2022-10-19 19:10:32,148 INFO balancer.Balancer: 0 underutilized: []\n",
+      "Oct 19, 2022 7:10:32 PM           0                  0 B                 0 B                0 B                  0  hdfs://namenode:8020\n",
+      "The cluster is balanced. Exiting...\n",
+      "Oct 19, 2022 7:10:32 PM  Balancing took 793.0 milliseconds\n"
+     ]
+    }
+   ],
+   "source": [
+    "# con el paso del tiempo se va desbalanceando y hay que balancear para que no se degrade el rendimiento\n",
+    "!hdfs balancer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.5"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

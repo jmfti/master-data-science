@@ -1,0 +1,176 @@
+---
+title: "Indices de riesgos"
+author: "jmfti"
+date: "2022-10-21"
+output: html_document
+---
+
+
+# Indices de riesgo
+
+## Índices absolutos
+
+### Diferencia de riesgos
+
+$\theta = \pi_{11} - \pi_{10} | \pi_{1k} = p(y=1 | x=k)$ 
+
+Media de la diferencia de riesgos E[DR] = $\pi_{11} - \pi_{10}$
+Varianza $V[DR] = \dfrac{\pi_{11}(1 - \pi_{11})}{s_1} + \dfrac{\pi_{10}(1 - \pi_{10})}{s_0}$
+Error estandar EE[DR] = $\sqrt{V[DR]} = \sqrt{\dfrac{\pi_{11}(1 - \pi_{11})}{s_1} + \dfrac{\pi_{10}(1 - \pi_{10})}{s_0}}$
+
+Estadístico de contraste z, que sigue N(0,1)
+$$
+z = \dfrac{DR - E[DR]}{EE[DR]} 
+= \dfrac{DR - (\pi{11} - \pi{10})}{\sqrt{\dfrac{\pi_{11}(1 - \pi_{11})}{s_1} + \dfrac{\pi_{10}(1 - \pi_{10})}{s_0}}}
+$$
+Siendo $\pi_{ik}$ las proporciones muestrales
+
+IC(1-$\alpha$)%(dr) = $\left ( DR \pm z_{1 - \alpha / 2} EE[DR] \right )$
+Contraste de hipotesis
+$$H_0: dr = 0 \\ H_1: dr \neq 0$$
+
+
+### Ejemplo
+
+```{r}
+
+df = read.table("d_d_3.txt", header = T)
+tabla = table(df)
+
+# proporcion muestral exp1
+alpha = 0.05
+p1 = mean(df$rta[df$exp == 0]); p1
+p2 = mean(df$rta[df$exp == 1]); p2
+dr = p2 - p1; dr
+var_dr = p1 * (1 - p1) / length(df$exp == 0) + p2 * (1 - p2) / length(df$exp == 1); var_dr
+ee_dr = sqrt(var_dr); ee_dr
+
+# ic 
+icinf = dr - qnorm(1 - alpha / 2) * ee_dr; icinf
+icsup = dr + qnorm(1 - alpha / 2) * ee_dr; icsup
+
+# estadistico z para el contraste
+z = (dr)/ee_dr; z
+
+prop.test(table(df), correct=F)
+
+chisq.test(table(df), correct=F)
+```
+
+## Indices relativos
+
+### Riesgo relativo
+
+El parámetro $\theta$ = riesgo relativo viene dado por 
+$\theta = rr = \dfrac{\pi_{11}}{\pi_{10}} = \dfrac{P(y=1 | x = 1)}{p(y=1 | x=0)}$
+
+#### Interpretacion riesgo relativo
+* r = 3: es 3 veces mas probable que se de Y con presencia de X que sin ella
+* r = 1, es igual de probable la presencia de y dado X
+* r = 1/3: es menos probable (concretamente divide por 3 el riesgo) que se de Y en presencia de X, es decir, X evita Y
+
+La V.A. RR es *asimétrica* con rango (0,$\infty$) y tiene distribución *NO normal*.
+
+Para ello se transforma el riesgo relativo con una operación que garantice que dicho valor siga una N(0,1) como $\ln(rr)$
+
+#### Intervalo de confianza
+
+$$
+IC(1-\alpha)(\ln(rr)) = \underbrace{E[\ln(rr)]}_{\dfrac{\pi_{11}}{\pi_{10}}} \pm z_{1 - \alpha / 2} \underbrace{EE[\ln(rr)]}_{\sqrt{\dfrac{1}{a} - \dfrac{1}{s_1} + \dfrac{1}{b} - \dfrac{1}{s_2}}}
+$$
+
+#### Contraste de hipotesis
+
+La hipotesis a contrastar es 
+$$
+H_0: rr = 1 \\
+H_1: rr \neq 1
+$$
+
+La prueba se hace con el test z de diferencia de proporciones, de Fisher, o del test $\chi^2$
+
+#### Ejemplo
+
+Estudio, 76 individuos, datos en d_d_3.txt, D<-D, X = 0, 1, Y = 0, 1, explica X, y?
+Calcular RR, IC y su contraste de hipotesis asociado
+
+```{r}
+df = read.table("d_d_3.txt", header = T)
+tabla = table(df); tabla
+
+# proporcion muestral exp1
+alpha = 0.05
+p1 = mean(df$rta[df$exp == 0]); p1
+p2 = mean(df$rta[df$exp == 1]); p2
+
+rr = p1/p2; rr
+ln_rr = log(rr)
+a =   sum(df$exp == 0 & df$rta == 0); a
+s1 =  sum(df$exp == 0); s1
+b =   sum(df$exp == 1 & df$rta == 0); b
+s2 =  sum(df$exp == 1); s2
+ee = sqrt(1/a - 1/s1 + 1/b - 1/s2); ee
+
+icinf = rr - qnorm(1 - alpha / 2) * ee; icinf
+icsup = rr + qnorm(1 - alpha / 2) * ee; icsup
+
+chisq.test(tabla, correct=F)
+
+```
+
+### Odds ratio
+
+Dada una probabilidad, se define odds como el cociente de las probabilidades complementarias.
+
+$$
+odds = \dfrac{\pi}{1 - \pi} = \dfrac{P(y=1)}{ 1 - p(y=1)}
+$$
+
+Por tanto, consideramos los odds sobre un caso concreto (y= 1 en este caso, es decir, presencia de enfermedad por ejemplo), por lo que $\pi = p(y=1)$, por lo que $p(y=1) = \dfrac{o}{1 - o}$
+
+#### Interpretacion 
+* o = 3: probabilidad de Y = 1 es el triple de Y = 0 (probabilidad de enfermar triple de estar sano)
+* o = 1: probabilidad de y = 1 es igual que y = 0
+* o = 1/3: probabilidad de y=1 es un tercio de la de y=0
+
+Odds de presencia de y en individuos x = 1 $o_{x=1} = \dfrac{\pi_{11}}{1 - \pi{11}}$
+Odds de presencia de y en individuos x = 0 $o_{x=0} = \dfrac{\pi_{10}}{1 - \pi{10}}$
+Odds de presencia de y respecto a x $or_{x} = \dfrac{o_{x=1}}{o_{x=0}}$
+Odds de presencia de x respecto a y $or_{y} = \dfrac{o_{y=1}}{o_{y=0}}$
+
+Por Bayes sabemos que $or_x = or_y$
+
+Estimador de parámetro $or = \theta$ = $\dfrac{\dfrac{\pi_{11}}{1 - \pi{11}}}{\dfrac{\pi_{10}}{1 - \pi{10}}} = \dfrac{ad}{bc}$
+
+El odds ratio es un indice relativo de asociacion entre 2 variables dicotomicas
+
+* or > 1: p(y = 1| x=1) > p(y=1 | x=0), es decir, x favorece la presencia de y
+* or = 1: p(y = 1| x=1) = p(y=1 | x=0), es decir, no hay diferencias
+* or < 1: ni hace falta comentar
+
+En contextos como medicina, or > 1 implica x como factor de riesgo, cuando or < 1 se le llama factor protector.
+
+El contraste de hipotesis es 
+
+$$
+H_0: or = 1 \\
+H_1: or \neq 1
+$$
+
+#### Transformación logit
+La transformación logit viene dada por
+$$
+h(\pi) = logit(\pi) = \ln \left ( \dfrac{\pi}{1 - \pi} \right )
+$$
+
+Verifica que 
+$$
+\dfrac{e^{logit(x)}}{1 + e^{logit(x)}}
+$$
+
+IC(1 - $\alpha$)(logit($\pi$)) viene dado por 
+$$
+IC(1 - \alpha)(logit(\pi)) = \underbrace{E[logit(\pi)]}_{\ln(r_1/r_0)} \pm z_{1 - \alpha / 2} \underbrace{EE[logit(\pi)]}_{\sqrt{\dfrac{n}{r_1r_0}}}
+$$
+
+Ejemplo de uso de test chisq para variables cualitativas de tipo nominal N <- N en book of R pag 415

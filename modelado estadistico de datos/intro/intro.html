@@ -404,18 +404,18 @@ estadísticos.</p>
 <pre class="r"><code># replicate(n, fun) repite fun n veces y devuelve un vector con n valores
 
 sum(1 * runif(50, 0, 1) &lt; 0.4) / 50 # calcula el número de exitos en una secuencia de n ensayos (50) de bernoulli (con p = 0.4) independientes entre s. </code></pre>
-<pre><code>## [1] 0.46</code></pre>
+<pre><code>## [1] 0.4</code></pre>
 <pre class="r"><code>prop_muest = replicate(19, sum(1 * runif(50,0,1) &lt; 0.4 ) / 50)
 ic95_inf = prop_muest - 1.96 * sqrt(prop_muest * (1 - prop_muest) / 50)
 ic95_inf</code></pre>
-<pre><code>##  [1] 0.1906994 0.2831926 0.2831926 0.2831926 0.2831926 0.2454577 0.2642072
-##  [8] 0.2269508 0.2454577 0.2269508 0.3815180 0.3614071 0.2642072 0.3415180
-## [15] 0.4224086 0.3415180 0.3024086 0.2086946 0.2831926</code></pre>
+<pre><code>##  [1] 0.1384168 0.3415180 0.4018513 0.2831926 0.1555439 0.2269508 0.3218513
+##  [8] 0.2831926 0.4018513 0.2642072 0.2831926 0.3614071 0.2831926 0.2086946
+## [15] 0.3218513 0.1906994 0.2269508 0.2086946 0.2831926</code></pre>
 <pre class="r"><code>ic95_sup = prop_muest + 1.96 * sqrt(prop_muest * (1 - prop_muest) / 50)
 ic95_sup </code></pre>
-<pre><code>##  [1] 0.4493006 0.5568074 0.5568074 0.5568074 0.5568074 0.5145423 0.5357928
-##  [8] 0.4930492 0.5145423 0.4930492 0.6584820 0.6385929 0.5357928 0.6184820
-## [15] 0.6975914 0.6184820 0.5775914 0.4713054 0.5568074</code></pre>
+<pre><code>##  [1] 0.3815832 0.6184820 0.6781487 0.5568074 0.4044561 0.4930492 0.5981487
+##  [8] 0.5568074 0.6781487 0.5357928 0.5568074 0.6385929 0.5568074 0.4713054
+## [15] 0.5981487 0.4493006 0.4930492 0.4713054 0.5568074</code></pre>
 </div>
 </div>
 <div id="contraste-de-hipótesis" class="section level1">
@@ -454,23 +454,23 @@ estadistico Z y su valor p</p>
 df = data.frame(prop_muest, ic95_inf, ic95_sup, z, valor_p)
 df </code></pre>
 <pre><code>##    prop_muest  ic95_inf  ic95_sup          z    valor_p
-## 1        0.32 0.1906994 0.4493006 -1.1547005 0.24821308
-## 2        0.42 0.2831926 0.5568074  0.2886751 0.77282999
-## 3        0.42 0.2831926 0.5568074  0.2886751 0.77282999
+## 1        0.26 0.1384168 0.3815832 -2.0207259 0.04330814
+## 2        0.48 0.3415180 0.6184820  1.1547005 0.24821308
+## 3        0.54 0.4018513 0.6781487  2.0207259 0.04330814
 ## 4        0.42 0.2831926 0.5568074  0.2886751 0.77282999
-## 5        0.42 0.2831926 0.5568074  0.2886751 0.77282999
-## 6        0.38 0.2454577 0.5145423 -0.2886751 0.77282999
-## 7        0.40 0.2642072 0.5357928  0.0000000 1.00000000
-## 8        0.36 0.2269508 0.4930492 -0.5773503 0.56370286
-## 9        0.38 0.2454577 0.5145423 -0.2886751 0.77282999
-## 10       0.36 0.2269508 0.4930492 -0.5773503 0.56370286
-## 11       0.52 0.3815180 0.6584820  1.7320508 0.08326452
+## 5        0.28 0.1555439 0.4044561 -1.7320508 0.08326452
+## 6        0.36 0.2269508 0.4930492 -0.5773503 0.56370286
+## 7        0.46 0.3218513 0.5981487  0.8660254 0.38647623
+## 8        0.42 0.2831926 0.5568074  0.2886751 0.77282999
+## 9        0.54 0.4018513 0.6781487  2.0207259 0.04330814
+## 10       0.40 0.2642072 0.5357928  0.0000000 1.00000000
+## 11       0.42 0.2831926 0.5568074  0.2886751 0.77282999
 ## 12       0.50 0.3614071 0.6385929  1.4433757 0.14891467
-## 13       0.40 0.2642072 0.5357928  0.0000000 1.00000000
-## 14       0.48 0.3415180 0.6184820  1.1547005 0.24821308
-## 15       0.56 0.4224086 0.6975914  2.3094011 0.02092134
-## 16       0.48 0.3415180 0.6184820  1.1547005 0.24821308
-## 17       0.44 0.3024086 0.5775914  0.5773503 0.56370286
+## 13       0.42 0.2831926 0.5568074  0.2886751 0.77282999
+## 14       0.34 0.2086946 0.4713054 -0.8660254 0.38647623
+## 15       0.46 0.3218513 0.5981487  0.8660254 0.38647623
+## 16       0.32 0.1906994 0.4493006 -1.1547005 0.24821308
+## 17       0.36 0.2269508 0.4930492 -0.5773503 0.56370286
 ## 18       0.34 0.2086946 0.4713054 -0.8660254 0.38647623
 ## 19       0.42 0.2831926 0.5568074  0.2886751 0.77282999</code></pre>
 <p>En este conjunto de experimentos (19 experimentos de 50 lanzamientos
@@ -478,8 +478,10 @@ de una moneda con p 0.4) existen algunos resultados para lso cuales, el
 contraste de hipóteiss, nos hubiera hecho rechazar la hipótesis nula
 erróneamente (valor p menor que el valor de significación <span class="math inline">\(\alpha\)</span>)</p>
 <pre class="r"><code>df[valor_p &lt; 0.05,]</code></pre>
-<pre><code>##    prop_muest  ic95_inf  ic95_sup        z    valor_p
-## 15       0.56 0.4224086 0.6975914 2.309401 0.02092134</code></pre>
+<pre><code>##   prop_muest  ic95_inf  ic95_sup         z    valor_p
+## 1       0.26 0.1384168 0.3815832 -2.020726 0.04330814
+## 3       0.54 0.4018513 0.6781487  2.020726 0.04330814
+## 9       0.54 0.4018513 0.6781487  2.020726 0.04330814</code></pre>
 </div>
 <div id="respuestas-dicotómicas" class="section level1">
 <h1>Respuestas dicotómicas</h1>
@@ -804,6 +806,110 @@ summary(df)</code></pre>
 ## 
 ## data:  rta by exp
 ## Kruskal-Wallis chi-squared = 1.3398, df = 2, p-value = 0.5118</code></pre>
+</div>
+</div>
+<div id="ejercicios" class="section level1">
+<h1>Ejercicios</h1>
+<div id="nivel-1" class="section level2">
+<h2>Nivel 1</h2>
+<div id="section" class="section level3">
+<h3>1</h3>
+<p>Si Y dicotómica, entonces E(Y) es su proporción muestral.</p>
+<p>Esto implica asumir que $ _{i=1}^n x_i $ Dado que <span class="math inline">\(\sum \limits_{i=1}^n x_i\)</span> nos calcula el
+número de éxitos de la muestra <span class="math display">\[
+\dfrac{1}{n} \underbrace{ \sum \limits_{i=1}^n x_i }_{n_i} \equiv
+\dfrac{n_i}{n} \rightarrow
+\\
+\dfrac{1}{n} {n_i} = \dfrac{n_i}{n}
+\]</span></p>
+</div>
+<div id="section-1" class="section level3">
+<h3>3</h3>
+<p>Para una misma muestra, un IC95% de una proporción poblacional será
+siempre más ancho que un IC99%</p>
+<p>Intuitivamente esto debería ser falso. Cuanta más confianza hay que
+tener sobre el valor real del parámetro, más amplio tiene que ser el
+intervalo de confianza para estar seguros de que el parámetro cae en ese
+rango.</p>
+<p>Por tanto un IC95% de propocion sera siempre menor que un IC99% o
+sería contradictorio.</p>
+<p>Analíticamente</p>
+<p><span class="math display">\[ IC(1-\alpha)\%(\pi) = \left ( \pi -
+z_{1 - \alpha / 2}\sqrt{\pi(1-\pi)\dfrac{1}{n}}, \pi + z_{1 - \alpha /
+2}\sqrt{\pi(1-\pi)\dfrac{1}{n}} \right )  \]</span></p>
+<p>Para una misma muestra, podemos considerar <span class="math inline">\(\sqrt{\pi(1-\pi)\dfrac{1}{n}}\)</span> constante
+<span class="math display">\[
+IC(1-\alpha)\%(\pi) = \left ( \pi - z_{1 - \alpha /
+2}\underbrace{\sqrt{\pi(1-\pi)\dfrac{1}{n}}}_C, \pi + z_{1 - \alpha / 2}
+\underbrace{ \sqrt{\pi(1-\pi)\dfrac{1}{n}} }_{C} \right )  \\
+IC(1-\alpha)\%(\pi) = \left ( \pi - z_{1 - \alpha / 2} C, \pi + z_{1 -
+\alpha / 2} C \right )
+\]</span> Con esta expresión más simple se ve claramente que el
+intervalo de confianza para una misma muestra depende enteramente del
+valor de <span class="math inline">\(z_{1-\alpha/2}\)</span>. Cuando
+<span class="math inline">\(\alpha = 0.95\)</span> el valor de dicho z
+es 1.96. Cuando <span class="math inline">\(\alpha = 0.99\)</span> el
+valor de z es 2.58.</p>
+<p>De esta forma se observa claramente que</p>
+<p><span class="math display">\[
+\pi - z_{1 - \alpha_{0.99} / 2} &lt;  \pi - z_{1 - \alpha_{0.95} / 2}
+\]</span></p>
+<p>Por tanto, para un mayor nivel de confianza, el intervalo se
+ensancha, y a menor confianza, se estrecha. También se estrecha en
+función del número de muestras.</p>
+</div>
+<div id="section-2" class="section level3">
+<h3>5</h3>
+<p>En un CH al ser <span class="math inline">\(\alpha = P(H_1 |
+H_0)\)</span> y <span class="math inline">\(\beta = P(H_0 |
+H_1)\)</span> se tiene que <span class="math inline">\(\alpha + \beta =
+1\)</span></p>
+<p>Esto implica afirmar que <span class="math inline">\(p(H_1 | H_0) +
+P(H_0 | H_1) = 1\)</span>, pero sabemos que esto no es así. De esto se
+deriva que <span class="math inline">\(p(H_1 | H_0) = 1 - P(H_0 |
+H_1)\)</span></p>
+<p>Analíticamente, si <span class="math inline">\(\alpha = P(H_1 |
+H_0)\)</span> y $= P(H_0 | H_1) $ son probabilidades condicionales</p>
+<p>Sabemos que <span class="math display">\[
+\begin{align*}
+&amp;p(x,y) = p(x|y)p(y) = p(y|x)p(x) \rightarrow \\
+&amp;p(H_0,H_1) = p(H_0| H_1) p(H_1) = p(H_1 | H_0) p(H_0) \rightarrow
+\\
+&amp;\dfrac{p(H_0| H_1) p(H_1)}{p(H_0)} = p(H_1 | H_0) \\
+&amp;p(H_0| H_1) \underbrace{\dfrac{p(H_1)}{p(H_0)}}_{Constant, K} =
+p(H_1 | H_0) \\
+&amp;p(H_0| H_1) K = p(H_1 | H_0) \\
+&amp;p(H_0| H_1) \propto  p(H_1 | H_0)
+\end{align*}
+\]</span></p>
+<p>Si en nuestra expresión, <span class="math inline">\(p(H_0| H_1)
+\propto p(H_1 | H_0)\)</span> entonces <span class="math inline">\(\alpha \propto \beta\)</span>, o <span class="math inline">\(\alpha K = \beta \rightarrow \alpha K - \beta =
+0\)</span>, lo que implica que <span class="math inline">\(\alpha K -
+\beta = \alpha + \beta - 1\)</span>.</p>
+<p>No es una demostración pero se intuye de esta última expresión que
+esto sólo es cierto para ciertos valores de alpha y beta, en el cual K
+tiene que tomar un valor <span class="math inline">\(\dfrac{2b+a-1}{a}\)</span></p>
+</div>
+</div>
+<div id="nivel-2" class="section level2">
+<h2>Nivel 2</h2>
+<div id="section-3" class="section level3">
+<h3>1</h3>
+<p>Si Y dicotómica (0, 1), entonces <span class="math inline">\(\sum_{i=1}^n (y_i - \hat y)^2\)</span> es igual
+a…</p>
+</div>
+<div id="section-4" class="section level3">
+<h3>2</h3>
+<p>Si Y = {0, 1}, entonces V{Y} (la varianza de Y) es</p>
+<p><span class="math inline">\(v[Y] = E[(y - E[y])^2] =
+E[Y^2]-E[Y]^2\)</span> Dado que en una variable dicotómica <span class="math inline">\(E[y] = E[y^2] \rightarrow E[y^2]-E[y]^2 =
+E[y]-E[y]^2 = E[y](1 - E[y])\)</span></p>
+<pre class="r"><code>data = rbinom(100, 1, 0.3)
+mean(data)</code></pre>
+<pre><code>## [1] 0.27</code></pre>
+<pre class="r"><code>mean(data^2)</code></pre>
+<pre><code>## [1] 0.27</code></pre>
+</div>
 </div>
 </div>
 

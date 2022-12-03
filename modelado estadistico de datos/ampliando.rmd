@@ -1,0 +1,74 @@
+---
+title: "Ampliando"
+author: "jmfti"
+date: "2022-10-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Unplanned comparisons after the F test
+
+After f-test rejected the null hypothesis of homogeneicity, differences can be investigated.
+
+Unplanned comparisons $\mu_i = \mu_j | i \neq j$
+
+```{r}
+library(datasets)
+head(PlantGrowth)
+
+mod = aov(weight ~ group, data = PlantGrowth)
+mod.tukey = TukeyHSD(mod, ordered=T)
+mod.tukey
+
+```
+
+## Multiple coomparisons at the same time
+
+```{r}
+mod = aov(Speed ~ Expt + Run + Expt:Run, data=morley)
+mod2 = aov(Speed ~ factor(Expt) + factor(Run), data=morley)
+summary(mod)
+boxplot(Speed ~ Expt, data=morley)
+
+TukeyHSD(mod2, ordered=T)
+
+shapiro.test(morley$Speed[morley$Expt == 1])
+```
+
+## Linear regression
+
+```{r}
+summary(lm(density ~ conc, data=DNase))
+plot(DNase$conc, DNase$density) # non linearity detected
+plot(log(DNase$conc), log(DNase$density))
+summary(lm(log(density) ~ log(conc), data=DNase))
+```
+
+t value is much more distanced to the mean 0 in transformed than non log 
+
+
+## ROC curve
+
+```{r}
+library(tidymodels)
+library(plotly)
+library(pROC)
+library(dplyr)
+df = read.table("./tecnicas diagnosticas/d_c_1.txt", header=T)
+roc_obj = roc(df$rta, df$exp)
+df$rta = factor(df$rta)
+head(df)
+z = roc_curve(data=df, rta, exp)
+
+plot(roc_obj, print.auc=T)
+zdf = data.frame(z)
+names(zdf)[1] = "threshold"
+zdf %>% mutate(t_pos_rate = sensitivity, f_pos_rate = 1 - sensitivity, t_neg_rate = specificity, f_neg_rate = 1 - specificity)
+plot_data = zdf %>% filter(threshold != Inf & threshold != -Inf)
+
+plot_ly(data = plot_data, x = ~ 1 - specificity, y = ~ sensitivity, type="scatter", mode="lines") %>%
+  layout(title="ROC curve")
+```

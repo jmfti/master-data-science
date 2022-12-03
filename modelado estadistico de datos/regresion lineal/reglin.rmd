@@ -1,0 +1,17 @@
+---
+title: "Regresion lineal"
+output: html_document
+date: "2022-11-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+(CALC) (2 puntos) Se ha realizado un estudio para ver si influye la metodolog´ıa docente a la hora de
+aprobar. Para ello 75 estudiantes han recibido la metodolog´ıa 1 y 25 la metodolog´ıa 2. De cada estudiante
+se ha registrado si al final aprobaban (1) o no (2). Los datos experimentales se dan en la tabla siguiente,
+donde el n´umero de individuos con perfil aprobar = 1 y metodologia = 1 es 35, con perfil aprobar = 1
+y metodologia = 2 es 15, con perfil aprobar = 2 y metodologia = 1 es 40 y con perfil aprobar = 2 y
+metodologia = 2 es 10. ¿Hay diferencias estad´ısticamente significativas entre las dos metodolog´ıas?
+

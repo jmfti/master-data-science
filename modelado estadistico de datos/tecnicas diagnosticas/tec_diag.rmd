@@ -1,0 +1,53 @@
+---
+title: "Tecnicas diagnosticas"
+output: html_document
+date: "2022-10-29"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Tecnicas diagnosticas
+
+Se estudia caso diagnóstico dicotómico, esquema D <- D (x dicotómica, y dicotómica).
+En este contexto se considera una variable dicotómica X (prueba diagnóstica da positivo en x característica (enfermo, lo que sea)) y una variable $y$ dicotómica, que indica que el sujeto *realmente* posee dicha característica (o hay presencia de).
+
+La forma será la de 
+
+```{r}
+df = data.frame(rta=rbinom(50, 1, 0.5), exp=rbinom(50, 1, 0.5))
+head(df)
+```
+
+A partir de esta tabla se construye la tabla cruzada
+
+```{r}
+tabla = table(df)
+vp = tabla[1] # verdaderos positivos
+fn = tabla[2] # falsos negativos
+fp = tabla[3] # falsos positivos
+vn = tabla[4] # verdaderos negativos
+```
+
+# Sensibilidad y especificidad
+
+## Sensibilidad
+
+La sensibilidad es el acierto en enfermos, o la proporcion de verdaderos positivos $\pi_{11} = P(x = 1 | y = 1)$
+
+No es lo mismo $p(x=1 | y=1)$ que $p(y=1 | x=1)$. 
+El primero es la probabilidad de que el test de positivo, estando el sujeto enfermo (o la probabilidad de que el test de positivo habiendo presencia de dicha característica, suceso, evento)
+El segundo es la probabilidad de que el sujeto esté enfermo, sabiendo que el test da positivo. 
+
+## Especificidad
+
+La especificidad es el acierto en sanos o la proporción de verdaderos negativos $\pi{00} = P(X = 0 | Y = 0)$. 
+Aquí ocurre lo mismo que en el caso anterior.
+$p(x=0|y=0) \neq p(y=0 | x=0)$
+El primero es la probabilidad de que el test de negativo dado un sujeto no enfermo (o que el test de negativo y no exista presencia de).
+El segundo es la probabilidad de que el sujeto NO esté enfermo dado un test negativo (o la probabilidad de que no haya presencia de, dado un test negativo) 
+
+La proporción o fracción de verdaderos positivos es la sensibilidad ( p(x=1|y=1)). La proporción de falsos positivos p(x=1|y=0) $\pi_{10} = 1 - se = 1 - p(x=1|y=1)$ 
+
+Teniendo la especificidad (la proporción de verdaderos negativos) $\pi_{00}$, tambien podemos saber la fracción de falsos negativos $\pi{01} = 1 - es = 1 - p(x=0 | y=0) = p(x=0 | y=1)$.

@@ -7,6 +7,15 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(MASS)
+library(e1071)
+library(ISLR2)
+library(ggplot2)
+library(class)
+library(glmnet)
+library(caret)
+library(tidyverse)
+library(dplyr)
 ```
 # Cap1 - Linear regression
 Methods to fit a linear function over some parameters (w) against a test data 
@@ -101,8 +110,8 @@ $$
 Asumiendo que $t = y(x,w) + \epsilon$ tal 
 
 ```{r}
-library(MASS)
-library(ISLR2)
+#library(MASS)
+#library(ISLR2)
 head(Boston)
 ```
 
@@ -132,7 +141,7 @@ head(lm.fit$effects)
 confint(lm.fit)
 ```
 
-Se pueden obtener predicciones intervalos de confianza y intervalos de predicción
+Confidence intervals for prediction and mean can be obtained.
 
 ## Intervalo de confianza para la media de y
 ```{r}
@@ -188,7 +197,7 @@ df_treat2 = data.frame("measure_a" = treated_2_unit, "applied_units" = rep(2,100
 final_df = rbind(df_gen_pop, df_treat1)
 final_df = rbind(final_df, df_treat2)
 
-library(ggplot2)
+#library(ggplot2)
 
 ggplot(final_df) +
   aes(
@@ -365,6 +374,55 @@ plot(lda.fit)
 
 ```
 
+```{r}
+# creamos 2 grupos con diferente distribucion de 2 variables (x,y)
+grupo1_x = rnorm(100, mean=-2, sd=2)
+grupo1_y = rnorm(100, mean=0, sd=0.5)
+grupo2_x = rnorm(100, mean=3, sd=1)
+grupo2_y = rnorm(100, mean=2, sd=2)
+ndf = data.frame(x = c(grupo1_x, grupo2_x), y = c(grupo1_y, grupo2_y), group = c(rep(1, 100), rep(2, 100)))
+ndf$group = factor(ndf$group)
+
+bin.kde = kde2d(ndf$x, ndf$y, n=50)
+image(bin.kde)
+contour(bin.kde, add=T)
+
+lda.fit2 = lda(group ~ x + y, data=ndf)
+plot(lda.fit2)
+lda.pred = predict(lda.fit2)
+lda.class = lda.pred$class 
+table(lda.class, ndf$group)
+mean(lda.class == ndf$group) # precision
+
+# ahora usamos un subset
+train = sample(c(T,F), 200, replace=T, prob=c(0.5,0.5))
+lda.fit3 = lda(group ~ x + y, data=ndf, subset=train)
+plot(lda.fit3)
+lda.pred3 = predict(lda.fit3, ndf[!train,])
+lda.class3 = lda.pred3$class
+table(lda.class3, ndf$group[!train])
+mean(lda.class3 == ndf$group[!train])
+
+```
+
+### 10-fold CV LDA
+
+```{r}
+#library(caret)
+
+fitControl <- trainControl(method = "cv", number = 10)
+
+fit.lda.cv <- train(group ~ x + y,
+             method     = "lda",
+             #tuneGrid   = expand.grid(k = 1:10),
+             preProcess = c("center", "scale"),
+             trControl  = fitControl,
+             metric     = "Accuracy",
+             data       = ndf)
+fit.lda.cv
+#plot(fit.lda.cv)
+```
+
 ## Quadratic Discriminant analysis
 
 ```{r}
@@ -377,12 +435,13 @@ summary(qda.fit)
 qda.class <- predict(qda.fit, Smarket.2005)$class
 table(qda.class, Smarket.Direction.2005)
 mean(qda.class == Smarket.Direction.2005)
+
 ```
 
 ## Naive Bayes
 
 ```{r}
-library(e1071)
+#library(e1071)
 nb.fit <- naiveBayes(Direction ~ Lag1 + Lag2, data=Smarket, subset=train)
 nb.fit
 
@@ -400,7 +459,7 @@ knn(<matrix_x>, <new_x>, <groups for matrix_x>, k)
 It returns a prediction for <new_x>
 
 ```{r}
-library(class)
+#library(class)
 train.x <- cbind(Smarket$Lag1, Smarket$Lag2)[train,]
 test.x <- cbind(Smarket$Lag1, Smarket$Lag2)[!train,]
 train.direction <- Smarket$Direction[train]
@@ -458,4 +517,101 @@ knn.pred <- knn(train.x, test.x, train.y, k=3)
 mean(test.y == knn.pred) # accuracy of predictions against test data
 table(knn.pred, test.y)
 
+```
+
+## Cross Validation KNN
+Now use the new dataset created with bivariate data. Use 10 CV-fold to select the hyperparameter K.
+
+```{r}
+library(caret)
+
+fitControl <- trainControl(## 10-fold CV
+                           method = "repeatedcv",
+                           number = 10,
+                           ## repeated ten times
+                           repeats = 10)
+
+fit.knn <- train(group ~ x + y,
+             method     = "knn",
+             tuneGrid   = expand.grid(k = 1:10),
+             trControl  = fitControl,
+             metric     = "Accuracy",
+             data       = ndf)
+fit.knn
+plot(fit.knn)
+```
+
+
+
+# Ridge regression
+
+```{r}
+#library(glmnet)
+#library(ISLR2)
+head(Hitters)
+Hitters = na.omit(Hitters)
+grid = 10^seq(10, -2, length=100)
+# model.matrix adds the intercept in a usual regression model
+x = model.matrix(Salary ~ ., Hitters)[, -1] # convert categorical, remove the Intercept ([, -1])
+nrow(x)
+y = Hitters$Salary
+nrow(y)
+# glmnet performs ridge/lasso (depending on alpha, alpha=1 lasso, alpha=0 ridge) on a grid of lambdas and returns 
+# the best lambda
+# glmnet also standardizes input variables, so they are in the same scale
+ridge.mod = glmnet(x, y, alpha=0, lambda=10^seq(10, -2, length=100))
+dim(coef(ridge.mod))
+ridge.mod$lambda[50] # lambda = 11498
+ridge.mod$lambda[60] # lambda = 705
+# for this lambda we have the next coefficients
+coef(ridge.mod)[, 50] # AtBat 0.037
+coef(ridge.mod)[, 60] # AtBat 0.112, lambda decreased, so coefficient increased
+
+# As lambda increases, 
+```
+
+With train / test
+
+```{r}
+train = rbinom(nrow(Hitters), 1, 0.5) > 0.5
+test_dataset = Hitters[!train,]
+train_dataset = Hitters[train,]
+y.test = y[!train]
+y.train = y[train]
+
+ridge.mod = glmnet(x[train,], y[train], alpha=0, lambda=grid, thresh=1e-12); 
+# predict using lambda = 4
+ridge.pred = predict(ridge.mod, s=4, newx=x[!train,]); 
+mean((ridge.pred - y.test)^2)
+
+# predict using lambda = 10
+ridge.pred = predict(ridge.mod, s=10, newx=x[!train,])
+
+# setting lambda = 0 is least squares
+ridge.pred = predict(ridge.mod, s=0, newx=x[!train,])
+
+# set lambda using CV
+cv.out = cv.glmnet(x[train,], y[train], alpha=0)
+plot(cv.out)
+best_lambda = cv.out$lambda.min
+best_lambda
+
+ridge.pred = predict(ridge.mod, s=best_lambda, newx=x[!train,])
+mean((ridge.pred - y.test)^2)
+```
+
+## Lasso
+
+```{r}
+lasso.mod = glmnet(x[train,], y[train], alpha=1, lambda=grid)
+plot(lasso.mod)
+
+cv.out = cv.glmnet(x[train,], y[train], alpha=1)
+plot(cv.out)
+best_lambda = cv.out$lambda.min
+lasso.pred = predict(lasso.mod, s = best_lambda, newx = x[!train,])
+mean((lasso.pred - y.test)^2)
+
+lasso.coef = predict(lasso.mod, type="coefficients", s=best_lambda)
+lasso.coef
 ```

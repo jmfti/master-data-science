@@ -261,3 +261,86 @@ df = read.table("o_n_1.txt", header=T)
 summary(df)
 kruskal.test(rta ~ exp, data=df)
 ```
+
+# Ejercicios
+
+## Nivel 1
+
+### 1
+Si Y dicotómica, entonces E(Y) es su proporción muestral.
+
+Esto implica asumir que $ \dfrac{1}{n}\sum \limits_{i=1}^n x_i \equiv \dfrac{n_i}{n}$
+Dado que $\sum \limits_{i=1}^n x_i$ nos calcula el número de éxitos de la muestra
+$$ \dfrac{1}{n} \underbrace{ \sum \limits_{i=1}^n x_i }_{n_i} \equiv \dfrac{n_i}{n} \rightarrow
+\\
+\dfrac{1}{n} {n_i} = \dfrac{n_i}{n}
+$$
+
+### 3
+Para una misma muestra, un IC95% de una proporción poblacional será siempre más ancho que un IC99%
+
+Intuitivamente esto debería ser falso. Cuanta más confianza hay que tener sobre el valor real del parámetro, más amplio tiene que ser el intervalo de confianza para estar seguros de que el parámetro cae en ese rango.
+
+Por tanto un IC95% de propocion sera siempre menor que un IC99% o sería contradictorio.
+
+Analíticamente
+
+$$ IC(1-\alpha)\%(\pi) = \left ( \pi - z_{1 - \alpha / 2}\sqrt{\pi(1-\pi)\dfrac{1}{n}}, \pi + z_{1 - \alpha / 2}\sqrt{\pi(1-\pi)\dfrac{1}{n}} \right )  $$
+
+Para una misma muestra, podemos considerar $\sqrt{\pi(1-\pi)\dfrac{1}{n}}$ constante
+$$ 
+IC(1-\alpha)\%(\pi) = \left ( \pi - z_{1 - \alpha / 2}\underbrace{\sqrt{\pi(1-\pi)\dfrac{1}{n}}}_C, \pi + z_{1 - \alpha / 2} \underbrace{ \sqrt{\pi(1-\pi)\dfrac{1}{n}} }_{C} \right )  \\
+IC(1-\alpha)\%(\pi) = \left ( \pi - z_{1 - \alpha / 2} C, \pi + z_{1 - \alpha / 2} C \right )
+$$
+Con esta expresión más simple se ve claramente que el intervalo de confianza para una misma muestra depende enteramente del valor de $z_{1-\alpha/2}$.
+Cuando $\alpha = 0.95$ el valor de dicho z es 1.96. Cuando $\alpha = 0.99$ el valor de z es 2.58.
+
+De esta forma se observa claramente que 
+
+$$
+\pi - z_{1 - \alpha_{0.99} / 2} <  \pi - z_{1 - \alpha_{0.95} / 2}
+$$
+
+Por tanto, para un mayor nivel de confianza, el intervalo se ensancha, y a menor confianza, se estrecha. También se estrecha en función del número de muestras.
+
+### 5 
+
+En un CH al ser $\alpha = P(H_1 | H_0)$ y $\beta = P(H_0 | H_1)$ se tiene que $\alpha + \beta = 1$
+
+Esto implica afirmar que $p(H_1 | H_0) + P(H_0 | H_1) = 1$, pero sabemos que esto no es así. De esto se deriva que $p(H_1 | H_0) = 1 - P(H_0 | H_1)$
+
+Analíticamente, si $\alpha = P(H_1 | H_0)$ y $\beta = P(H_0 | H_1) $ son probabilidades condicionales
+
+Sabemos que 
+$$
+\begin{align*}
+&p(x,y) = p(x|y)p(y) = p(y|x)p(x) \rightarrow \\
+&p(H_0,H_1) = p(H_0| H_1) p(H_1) = p(H_1 | H_0) p(H_0) \rightarrow \\
+&\dfrac{p(H_0| H_1) p(H_1)}{p(H_0)} = p(H_1 | H_0) \\
+&p(H_0| H_1) \underbrace{\dfrac{p(H_1)}{p(H_0)}}_{Constant, K} = p(H_1 | H_0) \\
+&p(H_0| H_1) K = p(H_1 | H_0) \\
+&p(H_0| H_1) \propto  p(H_1 | H_0)
+\end{align*}
+$$
+
+Si en nuestra expresión, $p(H_0| H_1) \propto  p(H_1 | H_0)$ entonces $\alpha \propto \beta$, o $\alpha K = \beta \rightarrow \alpha K - \beta = 0$, lo que implica que $\alpha K - \beta = \alpha + \beta - 1$.
+
+No es una demostración pero se intuye de esta última expresión que esto sólo es cierto para ciertos valores de alpha y beta, en el cual K tiene que tomar un valor $\dfrac{2b+a-1}{a}$
+
+## Nivel 2
+
+### 1
+Si Y dicotómica (0, 1), entonces $\sum_{i=1}^n (y_i - \hat y)^2$ es igual a...
+
+### 2 
+
+Si Y = {0, 1}, entonces V{Y} (la varianza de Y) es
+
+$v[Y] = E[(y - E[y])^2] = E[Y^2]-E[Y]^2$
+Dado que en una variable dicotómica $E[y] = E[y^2] \rightarrow E[y^2]-E[y]^2 = E[y]-E[y]^2 = E[y](1 - E[y])$
+
+```{r}
+data = rbinom(100, 1, 0.3)
+mean(data)
+mean(data^2)
+```
